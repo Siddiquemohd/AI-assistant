@@ -6,6 +6,12 @@ from app.schemas.task import TaskCreateRequest, ReminderCreateRequest
 from app.services.task_service import TaskService
 from app.services.reminder_service import ReminderService
 
+PAYMENT_APP_KEYWORDS = {
+    "paytm", "gpay", "google pay", "phonepe", "paypal", "venmo",
+    "stripe", "wallet", "bank", "banking", "credit", "upi",
+    "cashapp", "cash app", "yuno", "revolut", "binance", "coinbase"
+}
+
 class ToolExecutor:
     def __init__(self, db: AsyncSession):
         self.db = db
@@ -49,6 +55,49 @@ class ToolExecutor:
         elif tool_name == "search_history":
             elapsed_ms = int((time.time() - start_time) * 1000)
             return {"status": "Success", "matches": [], "execution_time_ms": elapsed_ms}
+
+        elif tool_name == "web_search":
+            query = params.get("query", "").strip()
+            elapsed_ms = int((time.time() - start_time) * 1000)
+            return {
+                "status": "Success",
+                "action": "open_web_search",
+                "query": query,
+                "summary": f"Search requested for: '{query}'",
+                "execution_time_ms": elapsed_ms
+            }
+
+        elif tool_name == "make_phone_call":
+            phone_number = params.get("phone_number", "").strip()
+            contact_name = params.get("contact_name", "Contact").strip()
+            elapsed_ms = int((time.time() - start_time) * 1000)
+            return {
+                "status": "Success",
+                "action": "make_phone_call",
+                "phone_number": phone_number,
+                "contact_name": contact_name,
+                "execution_time_ms": elapsed_ms
+            }
+
+        elif tool_name == "launch_app":
+            app_name = str(params.get("app_name", "")).lower().strip()
+            package_name = str(params.get("package_name", "")).lower().strip()
+
+            # Safety Check: Strictly exclude financial/payment applications
+            for keyword in PAYMENT_APP_KEYWORDS:
+                if keyword in app_name or keyword in package_name:
+                    raise PermissionError(
+                        f"Security Policy Violation: Automated launch of financial/payment app '{app_name or package_name}' is strictly prohibited."
+                    )
+
+            elapsed_ms = int((time.time() - start_time) * 1000)
+            return {
+                "status": "Success",
+                "action": "launch_app",
+                "app_name": app_name,
+                "package_name": package_name,
+                "execution_time_ms": elapsed_ms
+            }
 
         else:
             raise NotImplementedError(f"Execution handler for tool '{tool_name}' is not implemented.")

@@ -39,4 +39,25 @@ TOOL_REGISTRY: Dict[str, ToolDefinition] = {
         requires_confirmation=False,
         is_read_only=True,
     ),
+    "web_search": ToolDefinition(
+        name="web_search",
+        description="Searches the web for information or URLs.",
+        risk_level="Low",
+        requires_confirmation=False,
+        is_read_only=True,
+    ),
+    "make_phone_call": ToolDefinition(
+        name="make_phone_call",
+        description="Initiates a phone call to a specified contact or phone number.",
+        risk_level="High",
+        requires_confirmation=True,
+        is_read_only=False,
+    ),
+    "launch_app": ToolDefinition(
+        name="launch_app",
+        description="Launches an installed non-financial application on the user device.",
+        risk_level="Medium",
+        requires_confirmation=False,
+        is_read_only=False,
+    ),
 }
