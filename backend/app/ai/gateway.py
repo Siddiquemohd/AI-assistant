@@ -2,16 +2,20 @@ from typing import AsyncGenerator, List
 from app.ai.base import BaseAiProvider, PromptMessage
 from app.ai.mock_provider import MockAiProvider
 from app.ai.ollama_provider import OllamaProvider
+from app.ai.openai_provider import OpenAiProvider
 from app.core.config import settings
 
 class AiGateway:
     def __init__(self):
         self._mock_provider = MockAiProvider()
         self._ollama_provider = OllamaProvider()
+        self._openai_provider = OpenAiProvider()
 
     def get_provider(self, mode: str = "auto") -> BaseAiProvider:
         if mode == "local":
             return self._ollama_provider
+        if settings.OPENAI_API_KEY and settings.OPENAI_API_KEY.strip():
+            return self._openai_provider
         # Default fallback to mock provider if no API key is configured
         return self._mock_provider
 
