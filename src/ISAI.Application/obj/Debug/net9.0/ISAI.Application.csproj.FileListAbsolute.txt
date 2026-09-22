@@ -1,0 +1,15 @@
+C:\my-AI-assistant\src\ISAI.Application\obj\Debug\net9.0\ISAI.Application.csproj.AssemblyReference.cache
+C:\my-AI-assistant\src\ISAI.Application\obj\Debug\net9.0\ISAI.Application.GeneratedMSBuildEditorConfig.editorconfig
+C:\my-AI-assistant\src\ISAI.Application\obj\Debug\net9.0\ISAI.Application.AssemblyInfoInputs.cache
+C:\my-AI-assistant\src\ISAI.Application\obj\Debug\net9.0\ISAI.Application.AssemblyInfo.cs
+C:\my-AI-assistant\src\ISAI.Application\obj\Debug\net9.0\ISAI.Application.csproj.CoreCompileInputs.cache
+C:\my-AI-assistant\src\ISAI.Application\bin\Debug\net9.0\ISAI.Application.deps.json
+C:\my-AI-assistant\src\ISAI.Application\bin\Debug\net9.0\ISAI.Application.dll
+C:\my-AI-assistant\src\ISAI.Application\bin\Debug\net9.0\ISAI.Application.pdb
+C:\my-AI-assistant\src\ISAI.Application\bin\Debug\net9.0\ISAI.Domain.dll
+C:\my-AI-assistant\src\ISAI.Application\bin\Debug\net9.0\ISAI.Domain.pdb
+C:\my-AI-assistant\src\ISAI.Application\obj\Debug\net9.0\ISAI.App.B5D4BA27.Up2Date
+C:\my-AI-assistant\src\ISAI.Application\obj\Debug\net9.0\ISAI.Application.dll
+C:\my-AI-assistant\src\ISAI.Application\obj\Debug\net9.0\refint\ISAI.Application.dll
+C:\my-AI-assistant\src\ISAI.Application\obj\Debug\net9.0\ISAI.Application.pdb
+C:\my-AI-assistant\src\ISAI.Application\obj\Debug\net9.0\ref\ISAI.Application.dll

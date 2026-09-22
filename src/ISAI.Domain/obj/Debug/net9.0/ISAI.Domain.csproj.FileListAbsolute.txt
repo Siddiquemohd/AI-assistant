@@ -1,0 +1,11 @@
+C:\my-AI-assistant\src\ISAI.Domain\bin\Debug\net9.0\ISAI.Domain.deps.json
+C:\my-AI-assistant\src\ISAI.Domain\bin\Debug\net9.0\ISAI.Domain.dll
+C:\my-AI-assistant\src\ISAI.Domain\bin\Debug\net9.0\ISAI.Domain.pdb
+C:\my-AI-assistant\src\ISAI.Domain\obj\Debug\net9.0\ISAI.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\my-AI-assistant\src\ISAI.Domain\obj\Debug\net9.0\ISAI.Domain.AssemblyInfoInputs.cache
+C:\my-AI-assistant\src\ISAI.Domain\obj\Debug\net9.0\ISAI.Domain.AssemblyInfo.cs
+C:\my-AI-assistant\src\ISAI.Domain\obj\Debug\net9.0\ISAI.Domain.csproj.CoreCompileInputs.cache
+C:\my-AI-assistant\src\ISAI.Domain\obj\Debug\net9.0\ISAI.Domain.dll
+C:\my-AI-assistant\src\ISAI.Domain\obj\Debug\net9.0\refint\ISAI.Domain.dll
+C:\my-AI-assistant\src\ISAI.Domain\obj\Debug\net9.0\ISAI.Domain.pdb
+C:\my-AI-assistant\src\ISAI.Domain\obj\Debug\net9.0\ref\ISAI.Domain.dll
