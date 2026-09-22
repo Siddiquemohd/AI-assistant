@@ -21,11 +21,12 @@ class ChatMessageModel {
   });
 
   factory ChatMessageModel.fromJson(Map<String, dynamic> json) {
+    final rawDate = json['created_at'] ?? json['createdAt'] ?? DateTime.now().toIso8601String();
     return ChatMessageModel(
-      id: json['id'] as String,
-      role: json['role'] as String,
-      content: json['content'] as String,
-      createdAt: DateTime.parse(json['createdAt'] as String),
+      id: json['id'] as String? ?? '',
+      role: json['role'] as String? ?? 'user',
+      content: json['content'] as String? ?? '',
+      createdAt: DateTime.tryParse(rawDate.toString()) ?? DateTime.now(),
       status: json['status'] as String? ?? 'Completed',
     );
   }
@@ -43,10 +44,11 @@ class ConversationModel {
   });
 
   factory ConversationModel.fromJson(Map<String, dynamic> json) {
+    final rawDate = json['updated_at'] ?? json['updatedAt'] ?? json['created_at'] ?? json['createdAt'] ?? DateTime.now().toIso8601String();
     return ConversationModel(
-      id: json['id'] as String,
-      title: json['title'] as String,
-      updatedAt: DateTime.parse(json['updatedAt'] as String),
+      id: json['id'] as String? ?? '',
+      title: json['title'] as String? ?? 'Conversation',
+      updatedAt: DateTime.tryParse(rawDate.toString()) ?? DateTime.now(),
     );
   }
 }
@@ -84,7 +86,7 @@ class ChatController extends GetxController {
         selectConversation(conversations.first);
       }
     } catch (e) {
-      errorMessage.value = 'Failed to load conversations.';
+      errorMessage.value = 'Failed to load conversations: $e';
     } finally {
       isLoadingConversations.value = false;
     }
@@ -100,7 +102,7 @@ class ChatController extends GetxController {
       conversations.insert(0, newConv);
       selectConversation(newConv);
     } catch (e) {
-      errorMessage.value = 'Failed to create conversation.';
+      errorMessage.value = 'Failed to create conversation: $e';
     }
   }
 
@@ -115,7 +117,7 @@ class ChatController extends GetxController {
           .toList();
       messages.value = list;
     } catch (e) {
-      errorMessage.value = 'Failed to load messages.';
+      errorMessage.value = 'Failed to load messages: $e';
     } finally {
       isLoadingMessages.value = false;
     }
@@ -127,6 +129,8 @@ class ChatController extends GetxController {
     if (currentConversation.value == null) {
       await createNewConversation();
     }
+
+    if (currentConversation.value == null) return;
 
     final convId = currentConversation.value!.id;
     isStreaming.value = true;
@@ -151,6 +155,8 @@ class ChatController extends GetxController {
     );
     messages.add(assistantMsg);
 
+    bool receivedAnyData = false;
+
     try {
       final response = await _apiClient.dio.post<ResponseBody>(
         '/conversations/$convId/messages/stream',
@@ -163,46 +169,67 @@ class ChatController extends GetxController {
       );
 
       final stream = response.data?.stream;
-      if (stream == null) return;
+      if (stream != null) {
+        String eventType = '';
+        final lineStream = stream.cast<List<int>>().transform(utf8.decoder).transform(const LineSplitter());
 
-      String eventType = '';
-      final lineStream = stream.cast<List<int>>().transform(utf8.decoder).transform(const LineSplitter());
+        await for (final line in lineStream) {
+          if (line.startsWith('event:')) {
+            eventType = line.substring(6).trim();
+          } else if (line.startsWith('data:')) {
+            final dataString = line.substring(5).trim();
+            if (dataString.isEmpty) continue;
 
-      await for (final line in lineStream) {
-        if (line.startsWith('event:')) {
-          eventType = line.substring(6).trim();
-        } else if (line.startsWith('data:')) {
-          final dataString = line.substring(5).trim();
-          if (dataString.isEmpty) continue;
+            final json = jsonDecode(dataString);
+            receivedAnyData = true;
 
-          final json = jsonDecode(dataString);
-
-          if (eventType == 'message.started') {
-            // Started
-          } else if (eventType == 'message.delta') {
-            final chunk = json['chunk'] as String? ?? '';
-            assistantMsg.content += chunk;
-            messages.refresh();
-          } else if (eventType == 'message.completed') {
-            assistantMsg.isStreaming = false;
-            assistantMsg.status = 'Completed';
-            messages.refresh();
-            fetchConversations();
-          } else if (eventType == 'message.cancelled') {
-            assistantMsg.isStreaming = false;
-            assistantMsg.status = 'Interrupted';
-            messages.refresh();
+            if (eventType == 'message.started') {
+              // Started
+            } else if (eventType == 'message.delta') {
+              final chunk = json['chunk'] as String? ?? '';
+              assistantMsg.content += chunk;
+              messages.refresh();
+            } else if (eventType == 'message.completed') {
+              assistantMsg.isStreaming = false;
+              assistantMsg.status = 'Completed';
+              messages.refresh();
+              fetchConversations();
+            } else if (eventType == 'message.cancelled') {
+              assistantMsg.isStreaming = false;
+              assistantMsg.status = 'Interrupted';
+              messages.refresh();
+            }
           }
         }
       }
-    } on DioException catch (e) {
-      if (CancelToken.isCancel(e)) {
+    } catch (e) {
+      if (!receivedAnyData) {
+        // Fallback to non-streaming POST /conversations/$convId/messages
+        try {
+          final fallbackResponse = await _apiClient.dio.post(
+            '/conversations/$convId/messages',
+            data: {'content': text.trim()},
+          );
+          if (fallbackResponse.statusCode == 200 && fallbackResponse.data != null) {
+            final replyMsg = ChatMessageModel.fromJson(fallbackResponse.data as Map<String, dynamic>);
+            assistantMsg.content = replyMsg.content;
+            assistantMsg.status = 'Completed';
+            assistantMsg.isStreaming = false;
+            messages.refresh();
+            fetchConversations();
+            return;
+          }
+        } catch (fallbackErr) {
+          errorMessage.value = 'Failed to send message: $fallbackErr';
+        }
+      }
+
+      if (_cancelToken != null && _cancelToken!.isCancelled) {
         assistantMsg.isStreaming = false;
         assistantMsg.status = 'Cancelled';
       } else {
         assistantMsg.isStreaming = false;
         assistantMsg.status = 'Failed';
-        errorMessage.value = 'Network or server error occurred.';
       }
       messages.refresh();
     } finally {
