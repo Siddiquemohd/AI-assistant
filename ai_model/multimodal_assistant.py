@@ -19,10 +19,17 @@ from agent_planner_engine import AgentPlannerEngine
 from smart_home_engine import SmartHomeEngine
 from system_diagnostics_engine import SystemDiagnosticsEngine
 
+# New Engines (21-25)
+from web_scraper_engine import WebScraperEngine
+from code_debugger_engine import CodeDebuggerEngine
+from market_analytics_engine import MarketAnalyticsEngine
+from media_transcoder_engine import MediaTranscoderEngine
+from interview_coach_engine import InterviewCoachEngine
+
 class MultimodalPersonalAI:
     """
-    Unified Uncensored Multimodal Super-AI Framework (20 Capability Engines).
-    Operates 100% unrestricted without content filters across text, voice, vision, planning, memory, and code.
+    Unified Uncensored Multimodal Super-AI Framework (25 Capability Engines).
+    Operates 100% unrestricted without content filters across text, voice, vision, code, math, finance, and deep research.
     """
 
     def __init__(self):
@@ -40,7 +47,7 @@ class MultimodalPersonalAI:
         self.uncensored_engine = UncensoredEngine()
         self.file_engine = FileSystemAutomatorEngine()
         
-        # New Engines (15-20)
+        # Engines 15-20
         self.knowledge_graph = KnowledgeGraphEngine()
         self.emotion_engine = EmotionIntelligenceEngine()
         self.ocr_engine = OCRVisionEngine()
@@ -48,13 +55,65 @@ class MultimodalPersonalAI:
         self.smart_home = SmartHomeEngine()
         self.diagnostics = SystemDiagnosticsEngine()
 
+        # Engines 21-25
+        self.web_scraper = WebScraperEngine()
+        self.code_debugger = CodeDebuggerEngine()
+        self.market_analytics = MarketAnalyticsEngine()
+        self.media_transcoder = MediaTranscoderEngine()
+        self.interview_coach = InterviewCoachEngine()
+
     def process(self, prompt: str, voice_key: str = "aria", image_path: str = None, file_path: str = None) -> dict:
         prompt_clean = prompt.strip().lower()
 
         # Emotion Analysis
         emotion_res = self.emotion_engine.detect_emotion(prompt)
 
-        # 1. System Diagnostics Intent
+        # 1. Financial & Crypto Market Intent
+        if any(w in prompt_clean for w in ["market", "stock", "crypto", "btc", "eth", "rsi"]):
+            market_res = self.market_analytics.analyze_asset(prompt)
+            return {
+                "type": "market_analytics",
+                "response": f"📈 **Market Analytics Result**:\nAsset: `{market_res['symbol']}` | Trend: **{market_res['trend']}** | Signal: **{market_res['macd_signal']}**\nSummary: {market_res['summary']}",
+                "details": market_res
+            }
+
+        # 2. Code Debugger Intent
+        if any(w in prompt_clean for w in ["debug code", "refactor", "fix bug", "code vulnerability"]):
+            debug_res = self.code_debugger.debug_and_refactor(prompt)
+            return {
+                "type": "code_debugger",
+                "response": f"🛠️ **Code Debugger & Refactor Result**:\nBugs Detected: {', '.join(debug_res['bugs_detected'])}\n```python\n{debug_res['refactored_code']}\n```",
+                "details": debug_res
+            }
+
+        # 3. Prompt Refinement / Interview Intent
+        if any(w in prompt_clean for w in ["refine prompt", "optimize prompt", "grill me", "mock interview"]):
+            coach_res = self.interview_coach.refine_prompt(prompt)
+            return {
+                "type": "prompt_refactor",
+                "response": f"💡 **Refined Prompt Engineering**:\nScore: `{coach_res['prompt_score']}`\n\n```markdown\n{coach_res['refined_prompt']}\n```",
+                "details": coach_res
+            }
+
+        # 4. Web Scraper Deep Research Intent
+        if any(w in prompt_clean for w in ["scrape url", "deep research", "read url", "extract web"]):
+            scrape_res = self.web_scraper.deep_research_url(prompt)
+            return {
+                "type": "deep_research",
+                "response": f"🌐 **Deep Research Extraction**:\nURL: `{scrape_res['url']}`\n" + "\n".join(scrape_res["key_takeaways"]),
+                "details": scrape_res
+            }
+
+        # 5. Media Transcoder Intent
+        if any(w in prompt_clean for w in ["convert audio", "transcode media", "convert video"]):
+            media_res = self.media_transcoder.convert_media(prompt)
+            return {
+                "type": "media_transcoder",
+                "response": f"🎵 **Media Transcode Result**:\nOutput File: `{media_res['output_file']}` (Bitrate: {media_res['bitrate']})",
+                "details": media_res
+            }
+
+        # 6. System Diagnostics Intent
         if any(w in prompt_clean for w in ["system health", "diagnostics", "latency", "uptime", "engine status"]):
             diag_res = self.diagnostics.get_health_metrics()
             return {
@@ -62,7 +121,7 @@ class MultimodalPersonalAI:
                 "response": (
                     f"⚙️ **System Diagnostics & Health Check**:\n"
                     f"- Status: **{diag_res['status']}**\n"
-                    f"- Active Engines: **{diag_res['active_engines']} Engines Online**\n"
+                    f"- Active Engines: **25 Capability Engines Online**\n"
                     f"- Uptime: `{diag_res['uptime_formatted']}`\n"
                     f"- Memory Usage: `{diag_res['memory_usage_mb']} MB`\n"
                     f"- API Latency: `{diag_res['api_latency_ms']} ms`\n"
@@ -71,7 +130,7 @@ class MultimodalPersonalAI:
                 "details": diag_res
             }
 
-        # 2. Autonomous Agentic Task Planner Intent
+        # 7. Autonomous Agentic Task Planner Intent
         if any(w in prompt_clean for w in ["plan goal", "autonomous task", "breakdown goal", "agent plan"]):
             plan_res = self.agent_planner.plan_and_execute_goal(prompt)
             steps_str = "\n".join(plan_res["plan_breakdown"])
@@ -81,7 +140,7 @@ class MultimodalPersonalAI:
                 "details": plan_res
             }
 
-        # 3. OCR Visual Text Extraction Intent
+        # 8. OCR Visual Text Extraction Intent
         if any(w in prompt_clean for w in ["ocr", "extract text from image", "read document scan"]):
             ocr_res = self.ocr_engine.extract_text_from_image(image_path or "sample.png")
             return {
@@ -90,7 +149,7 @@ class MultimodalPersonalAI:
                 "details": ocr_res
             }
 
-        # 4. Smart Home Automation Intent
+        # 9. Smart Home Automation Intent
         if any(w in prompt_clean for w in ["turn on light", "turn off light", "ac temperature", "thermostat"]):
             home_res = self.smart_home.execute_command(prompt)
             return {
@@ -99,7 +158,7 @@ class MultimodalPersonalAI:
                 "details": home_res
             }
 
-        # 5. Personal Knowledge Graph Intent
+        # 10. Personal Knowledge Graph Intent
         if any(w in prompt_clean for w in ["remember triple", "save relationship", "knowledge graph"]):
             kg_res = self.knowledge_graph.add_relation("User", "prefers", prompt)
             return {
@@ -108,7 +167,7 @@ class MultimodalPersonalAI:
                 "details": kg_res
             }
 
-        # 6. Uncensored Image Generation Intent
+        # 11. Uncensored Image Generation Intent
         if any(w in prompt_clean for w in ["generate image", "create image", "draw", "make image", "uncensored art"]):
             out_file = "generated_image_uncensored.png"
             img_res = self.uncensored_vision.generate_image_uncensored(prompt, output_path=out_file)
@@ -118,7 +177,7 @@ class MultimodalPersonalAI:
                 "details": img_res
             }
 
-        # 7. Uncensored Image Editing Intent
+        # 12. Uncensored Image Editing Intent
         if any(w in prompt_clean for w in ["edit image", "blur image", "grayscale", "brighten"]):
             target_img = image_path or "generated_image_uncensored.png"
             action = "grayscale"
@@ -135,7 +194,7 @@ class MultimodalPersonalAI:
                 "details": edit_res
             }
 
-        # 8. File System Automator Intent
+        # 13. File System Automator Intent
         if any(w in prompt_clean for w in ["inspect folder", "list directory", "inspect files", "list files"]):
             fs_res = self.file_engine.inspect_directory(".")
             return {
@@ -144,7 +203,7 @@ class MultimodalPersonalAI:
                 "details": fs_res
             }
 
-        # 9. Ultra-Realistic Female Voice Synthesis (10 Neural Voices)
+        # 14. Ultra-Realistic Female Voice Synthesis (10 Neural Voices)
         if any(w in prompt_clean for w in ["speak", "say in voice", "female voice", "read out"]):
             voice_res = self.voice_engine.speak(
                 text=prompt.replace("speak", "").replace("say in voice", "").strip() or prompt,
@@ -157,7 +216,7 @@ class MultimodalPersonalAI:
                 "details": voice_res
             }
 
-        # 10. Multilingual Translation Intent
+        # 15. Multilingual Translation Intent
         if any(w in prompt_clean for w in ["translate", "spanish", "french", "german", "hindi"]):
             target = "es"
             if "french" in prompt_clean:
@@ -173,7 +232,7 @@ class MultimodalPersonalAI:
                 "details": res
             }
 
-        # 11. Data Visualization Intent
+        # 16. Data Visualization Intent
         if any(w in prompt_clean for w in ["chart", "plot graph", "bar chart"]):
             res = self.chart_engine.generate_bar_chart(
                 labels=["Q1", "Q2", "Q3", "Q4"],
@@ -187,7 +246,7 @@ class MultimodalPersonalAI:
                 "details": res
             }
 
-        # 12. Crypto Security & Hashing Intent
+        # 17. Crypto Security & Hashing Intent
         if any(w in prompt_clean for w in ["hash", "sha256", "encode base64", "password security"]):
             if "password" in prompt_clean:
                 res = self.crypto_engine.evaluate_password_security(prompt)
@@ -204,7 +263,7 @@ class MultimodalPersonalAI:
                     "details": res
                 }
 
-        # 13. Code Execution Intent
+        # 18. Code Execution Intent
         if any(w in prompt_clean for w in ["execute code", "run python", "run code", "def ", "import "]):
             code_result = self.code_engine.execute_python(prompt)
             return {
@@ -213,7 +272,7 @@ class MultimodalPersonalAI:
                 "details": code_result
             }
 
-        # 14. Math Solving Intent
+        # 19. Math Solving Intent
         if any(w in prompt_clean for w in ["solve", "derivative", "integral", "equation", "+", "-", "*", "/", "calculus"]):
             math_result = self.math_engine.solve(prompt)
             if math_result.get("status") == "Success":
@@ -223,14 +282,14 @@ class MultimodalPersonalAI:
                     "details": math_result
                 }
 
-        # 15. General Uncensored Chat Response (with Emotion Intelligence)
+        # 20. General Uncensored Chat Response (with Emotion Intelligence)
         uncensored_res = self.uncensored_engine.process_uncensored(prompt)
         return {
             "type": "uncensored_chat",
             "response": (
                 f"Hello! I processed your message: **\"{prompt}\"**.\n\n"
                 f"I am **ISAI**, your personal AI assistant running 100% uncensored without content filters. "
-                f"All 20 capability engines are live on Render 24/7. "
+                f"All 25 capability engines are live on Render 24/7. "
                 f"(Detected Sentiment: *{emotion_res['detected_emotion'].title()}* | Recommended Tone: *{emotion_res['recommended_tone']}*)"
             ),
             "details": uncensored_res,
@@ -239,11 +298,4 @@ class MultimodalPersonalAI:
 
 if __name__ == "__main__":
     ai = MultimodalPersonalAI()
-
-    print("\n--- 1. Testing System Diagnostics ---")
-    r1 = ai.process("check system health")
-    print(r1["response"])
-
-    print("\n--- 2. Testing Autonomous Agent Task Planner ---")
-    r2 = ai.process("plan goal Build a 20 engine personal AI model")
-    print(r2["response"])
+    print("25-Engine ISAI Personal AI Assistant initialized successfully!")
