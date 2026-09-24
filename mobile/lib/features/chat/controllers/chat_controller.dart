@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
+import '../../../core/device/device_control_service.dart';
 import '../../../core/network/api_client.dart';
 
 class ChatMessageModel {
@@ -123,6 +124,40 @@ class ChatController extends GetxController {
     }
   }
 
+  void _executeNativeDeviceTools(String content) {
+    final contentLower = content.toLowerCase();
+
+    // 1. Phone Call Execution
+    if (contentLower.contains('make_phone_call') || contentLower.contains('initiating call to')) {
+      final match = RegExp(r'phone_number="([^"]+)"').firstMatch(content) ??
+                    RegExp(r'Initiating call to \*\*([^\*]+)\*\*').firstMatch(content);
+      final target = match?.group(1)?.trim() ?? '';
+      if (target.isNotEmpty) {
+        DeviceControlService.makePhoneCall(target);
+      }
+    }
+
+    // 2. Web Search Execution
+    if (contentLower.contains('web_search') || contentLower.contains('searching web for')) {
+      final match = RegExp(r'query="([^"]+)"').firstMatch(content) ??
+                    RegExp(r'Searching web for \*\*"?([^"\*]+)"?\*\*').firstMatch(content);
+      final query = match?.group(1)?.trim() ?? '';
+      if (query.isNotEmpty) {
+        DeviceControlService.openWebSearch(query);
+      }
+    }
+
+    // 3. App Launch Execution
+    if (contentLower.contains('launch_app') || contentLower.contains('opening **')) {
+      final match = RegExp(r'app_name="([^"]+)"').firstMatch(content) ??
+                    RegExp(r'Opening \*\*([^\*]+)\*\*').firstMatch(content);
+      final appName = match?.group(1)?.trim() ?? '';
+      if (appName.isNotEmpty) {
+        DeviceControlService.launchApp(appName);
+      }
+    }
+  }
+
   Future<void> sendStreamMessage(String text) async {
     if (text.trim().isEmpty) return;
 
@@ -193,6 +228,7 @@ class ChatController extends GetxController {
               assistantMsg.isStreaming = false;
               assistantMsg.status = 'Completed';
               messages.refresh();
+              _executeNativeDeviceTools(assistantMsg.content);
               fetchConversations();
             } else if (eventType == 'message.cancelled') {
               assistantMsg.isStreaming = false;
@@ -216,6 +252,7 @@ class ChatController extends GetxController {
             assistantMsg.status = 'Completed';
             assistantMsg.isStreaming = false;
             messages.refresh();
+            _executeNativeDeviceTools(assistantMsg.content);
             fetchConversations();
             return;
           }
