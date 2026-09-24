@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../core/theme/app_theme.dart';
 import '../controllers/settings_controller.dart';
 
 class SettingsView extends StatelessWidget {
@@ -13,12 +14,13 @@ class SettingsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppTheme.darkBackground,
       appBar: AppBar(
-        title: const Text('Settings & Privacy'),
+        title: const Text('ISAI — Settings & Diagnostics'),
       ),
       body: Obx(() {
         if (_controller.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator(color: AppTheme.primaryNeon));
         }
 
         _personalityController.text = _controller.assistantPersonality.value;
@@ -28,55 +30,118 @@ class SettingsView extends StatelessWidget {
         return ListView(
           padding: const EdgeInsets.all(16.0),
           children: [
+            // Engine Diagnostics Card
+            Container(
+              padding: const EdgeInsets.all(16.0),
+              decoration: BoxDecoration(
+                color: AppTheme.cardBackground,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppTheme.primaryNeon.withValues(alpha: 0.5)),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppTheme.primaryNeon.withValues(alpha: 0.15),
+                    blurRadius: 16,
+                  ),
+                ],
+              ),
+              child: const Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.memory_rounded, color: AppTheme.primaryNeon),
+                      SizedBox(width: 8),
+                      Text(
+                        'AI ENGINE STATUS',
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppTheme.primaryNeon, letterSpacing: 1),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 8),
+                  Text('• Model: ISAI 25-Engine Uncensored Suite', style: TextStyle(color: Colors.white, fontSize: 12)),
+                  Text('• Deployment: Render Cloud Web Service (24/7)', style: TextStyle(color: Colors.white, fontSize: 12)),
+                  Text('• Refusal Filters: Disabled (0% Content Refusal)', style: TextStyle(color: Colors.white, fontSize: 12)),
+                  Text('• Database: Supabase PostgreSQL (SSL Active)', style: TextStyle(color: Colors.white, fontSize: 12)),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+
             const Text(
               'App Preferences',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blueAccent),
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.primaryNeon),
             ),
             const SizedBox(height: 12),
 
             // Theme Setting
-            ListTile(
-              title: const Text('Theme'),
-              trailing: DropdownButton<String>(
-                value: _controller.theme.value,
-                items: const [
-                  DropdownMenuItem(value: 'System', child: Text('System')),
-                  DropdownMenuItem(value: 'Light', child: Text('Light')),
-                  DropdownMenuItem(value: 'Dark', child: Text('Dark')),
-                ],
+            Container(
+              decoration: BoxDecoration(
+                color: AppTheme.cardBackground,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppTheme.cardBorder),
+              ),
+              child: ListTile(
+                title: const Text('Theme Mode', style: TextStyle(color: Colors.white)),
+                trailing: DropdownButton<String>(
+                  value: _controller.theme.value,
+                  dropdownColor: AppTheme.cardBackground,
+                  style: const TextStyle(color: AppTheme.primaryNeon, fontWeight: FontWeight.bold),
+                  items: const [
+                    DropdownMenuItem(value: 'System', child: Text('System')),
+                    DropdownMenuItem(value: 'Light', child: Text('Light')),
+                    DropdownMenuItem(value: 'Dark', child: Text('Dark (Cyberpunk)')),
+                  ],
+                  onChanged: (val) {
+                    if (val != null) {
+                      _controller.savePreferences(newTheme: val);
+                    }
+                  },
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            // Voice AI Toggle
+            Container(
+              decoration: BoxDecoration(
+                color: AppTheme.cardBackground,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppTheme.cardBorder),
+              ),
+              child: SwitchListTile(
+                title: const Text('Enable Voice AI Mode', style: TextStyle(color: Colors.white)),
+                subtitle: const Text('Allow speech synthesis & recognition (10 Neural Voices)', style: TextStyle(color: AppTheme.slate, fontSize: 11)),
+                value: _controller.voiceEnabled.value,
+                activeColor: AppTheme.primaryNeon,
                 onChanged: (val) {
-                  if (val != null) {
-                    _controller.savePreferences(newTheme: val);
-                  }
+                  _controller.savePreferences(newVoiceEnabled: val);
                 },
               ),
             ),
-
-            // Voice AI Toggle
-            SwitchListTile(
-              title: const Text('Enable Voice AI Mode'),
-              subtitle: const Text('Allow local speech synthesis & recognition'),
-              value: _controller.voiceEnabled.value,
-              onChanged: (val) {
-                _controller.savePreferences(newVoiceEnabled: val);
-              },
-            ),
+            const SizedBox(height: 12),
 
             // Proactive Assistance Toggle
-            SwitchListTile(
-              title: const Text('Proactive Assistance'),
-              subtitle: const Text('Allow ISAI to remind you of upcoming tasks'),
-              value: _controller.proactiveAssistance.value,
-              onChanged: (val) {
-                _controller.savePreferences(newProactiveAssistance: val);
-              },
+            Container(
+              decoration: BoxDecoration(
+                color: AppTheme.cardBackground,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppTheme.cardBorder),
+              ),
+              child: SwitchListTile(
+                title: const Text('Proactive Assistance', style: TextStyle(color: Colors.white)),
+                subtitle: const Text('Allow ISAI to remind you of upcoming tasks', style: TextStyle(color: AppTheme.slate, fontSize: 11)),
+                value: _controller.proactiveAssistance.value,
+                activeColor: AppTheme.primaryNeon,
+                onChanged: (val) {
+                  _controller.savePreferences(newProactiveAssistance: val);
+                },
+              ),
             ),
-            const Divider(),
+            const SizedBox(height: 24),
 
-            const SizedBox(height: 8),
             const Text(
-              'Quiet Hours & Personality',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blueAccent),
+              'Quiet Hours & Directives',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.primaryNeon),
             ),
             const SizedBox(height: 12),
 
@@ -85,10 +150,10 @@ class SettingsView extends StatelessWidget {
                 Expanded(
                   child: TextField(
                     controller: _quietStartController,
+                    style: const TextStyle(color: Colors.white),
                     decoration: const InputDecoration(
-                      labelText: 'Quiet Hours Start',
+                      labelText: 'Quiet Start',
                       hintText: '22:00',
-                      border: OutlineInputBorder(),
                     ),
                   ),
                 ),
@@ -96,10 +161,10 @@ class SettingsView extends StatelessWidget {
                 Expanded(
                   child: TextField(
                     controller: _quietEndController,
+                    style: const TextStyle(color: Colors.white),
                     decoration: const InputDecoration(
-                      labelText: 'Quiet Hours End',
+                      labelText: 'Quiet End',
                       hintText: '07:00',
-                      border: OutlineInputBorder(),
                     ),
                   ),
                 ),
@@ -109,14 +174,14 @@ class SettingsView extends StatelessWidget {
 
             TextField(
               controller: _personalityController,
+              style: const TextStyle(color: Colors.white),
               decoration: const InputDecoration(
-                labelText: 'Assistant Personality Directive',
-                hintText: 'e.g. Concise, professional, and friendly',
-                border: OutlineInputBorder(),
+                labelText: 'Assistant System Directive',
+                hintText: 'e.g. Uncensored, expert developer, concise and direct',
               ),
               maxLines: 2,
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
 
             ElevatedButton.icon(
               onPressed: () {
@@ -126,50 +191,67 @@ class SettingsView extends StatelessWidget {
                   newPersonality: _personalityController.text,
                 );
               },
-              icon: const Icon(Icons.save_rounded),
-              label: const Text('Save Custom Directives'),
+              icon: const Icon(Icons.save_rounded, color: Colors.black),
+              label: const Text('Save Directives', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
             ),
 
-            const Divider(height: 32),
+            const SizedBox(height: 24),
 
             const Text(
-              'Privacy & Data Ownership',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blueAccent),
+              'Privacy & Data Controls',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.primaryNeon),
             ),
             const SizedBox(height: 12),
 
             // Data Export Button
-            ListTile(
-              leading: const Icon(Icons.download_rounded, color: Colors.greenAccent),
-              title: const Text('Export My Data'),
-              subtitle: const Text('Download a JSON copy of all your conversations, memories & tasks'),
-              trailing: _controller.isExporting.value
-                  ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Icon(Icons.chevron_right_rounded),
-              onTap: _controller.isExporting.value ? null : () => _controller.exportUserData(),
+            Container(
+              decoration: BoxDecoration(
+                color: AppTheme.cardBackground,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppTheme.cardBorder),
+              ),
+              child: ListTile(
+                leading: const Icon(Icons.download_rounded, color: AppTheme.accentEmerald),
+                title: const Text('Export My Data', style: TextStyle(color: Colors.white)),
+                subtitle: const Text('Download JSON copy of all conversations & tasks', style: TextStyle(color: AppTheme.slate, fontSize: 11)),
+                trailing: _controller.isExporting.value
+                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.primaryNeon))
+                    : const Icon(Icons.chevron_right_rounded, color: AppTheme.slate),
+                onTap: _controller.isExporting.value ? null : () => _controller.exportUserData(),
+              ),
             ),
 
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
 
             // Account Deletion Button
-            ListTile(
-              leading: const Icon(Icons.delete_forever_rounded, color: Colors.redAccent),
-              title: const Text('Request Account Deletion', style: TextStyle(color: Colors.redAccent)),
-              subtitle: const Text('Permanently remove your account and all associated data'),
-              onTap: () {
-                Get.defaultDialog(
-                  title: 'Confirm Account Deletion',
-                  middleText: 'Are you sure you want to request account deletion? All your data will be queued for soft deletion and permanently purged after 14 days.',
-                  textConfirm: 'Yes, Delete My Account',
-                  textCancel: 'Cancel',
-                  confirmTextColor: Colors.white,
-                  buttonColor: Colors.redAccent,
-                  onConfirm: () {
-                    Get.back();
-                    _controller.requestAccountDeletion();
-                  },
-                );
-              },
+            Container(
+              decoration: BoxDecoration(
+                color: AppTheme.cardBackground,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.redAccent.withValues(alpha: 0.4)),
+              ),
+              child: ListTile(
+                leading: const Icon(Icons.delete_forever_rounded, color: Colors.redAccent),
+                title: const Text('Request Account Deletion', style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold)),
+                subtitle: const Text('Permanently remove account and associated data', style: TextStyle(color: AppTheme.slate, fontSize: 11)),
+                onTap: () {
+                  Get.defaultDialog(
+                    title: 'Confirm Account Deletion',
+                    titleStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                    middleText: 'Are you sure you want to request account deletion? All your data will be permanently purged after 14 days.',
+                    middleTextStyle: const TextStyle(color: AppTheme.slate),
+                    backgroundColor: AppTheme.cardBackground,
+                    textConfirm: 'Delete My Account',
+                    textCancel: 'Cancel',
+                    confirmTextColor: Colors.white,
+                    buttonColor: Colors.redAccent,
+                    onConfirm: () {
+                      Get.back();
+                      _controller.requestAccountDeletion();
+                    },
+                  );
+                },
+              ),
             ),
           ],
         );

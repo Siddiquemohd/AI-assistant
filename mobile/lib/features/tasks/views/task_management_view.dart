@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../core/theme/app_theme.dart';
 import '../controllers/task_controller.dart';
 
 class TaskManagementView extends StatelessWidget {
@@ -10,11 +11,12 @@ class TaskManagementView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppTheme.darkBackground,
       appBar: AppBar(
-        title: const Text('ISAI — Tasks & Agent'),
+        title: const Text('ISAI — Tasks & Autonomous Agent'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.smart_toy_outlined, color: Colors.blueAccent),
+            icon: const Icon(Icons.smart_toy_outlined, color: AppTheme.primaryNeon),
             tooltip: 'Run Agent Command',
             onPressed: () => _showAgentCommandDialog(context),
           ),
@@ -22,16 +24,33 @@ class TaskManagementView extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showAddTaskDialog(context),
+        backgroundColor: AppTheme.primaryNeon,
+        foregroundColor: Colors.black,
         icon: const Icon(Icons.add_task),
-        label: const Text('New Task'),
+        label: const Text('New Task', style: TextStyle(fontWeight: FontWeight.bold)),
       ),
       body: Obx(() {
         if (_controller.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator(color: AppTheme.primaryNeon));
         }
         if (_controller.tasks.isEmpty) {
           return const Center(
-            child: Text('No tasks found. Create one or run an Agent command!'),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.task_outlined, size: 64, color: AppTheme.slate),
+                SizedBox(height: 16),
+                Text(
+                  'No tasks found.',
+                  style: TextStyle(color: AppTheme.slate, fontSize: 16),
+                ),
+                SizedBox(height: 6),
+                Text(
+                  'Create one or run an Autonomous Agent command!',
+                  style: TextStyle(color: AppTheme.slate, fontSize: 12),
+                ),
+              ],
+            ),
           );
         }
         return ListView.builder(
@@ -41,37 +60,57 @@ class TaskManagementView extends StatelessWidget {
             final task = _controller.tasks[index];
             final isCompleted = task.status == 'Completed';
 
-            return Card(
+            return Container(
               margin: const EdgeInsets.only(bottom: 12.0),
+              decoration: BoxDecoration(
+                color: AppTheme.cardBackground,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppTheme.cardBorder),
+              ),
               child: ListTile(
                 leading: Checkbox(
                   value: isCompleted,
+                  activeColor: AppTheme.primaryNeon,
+                  checkColor: Colors.black,
                   onChanged: (val) => _controller.toggleTaskCompleted(task),
                 ),
                 title: Text(
                   task.title,
                   style: TextStyle(
                     decoration: isCompleted ? TextDecoration.lineThrough : TextDecoration.none,
-                    color: isCompleted ? Colors.grey : Colors.white,
+                    color: isCompleted ? AppTheme.slate : Colors.white,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
                 subtitle: Text(
                   task.description.isNotEmpty ? task.description : 'Priority: ${task.priority}',
-                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                  style: const TextStyle(fontSize: 12, color: AppTheme.slate),
                 ),
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Chip(
-                      label: Text(task.priority, style: const TextStyle(fontSize: 10)),
-                      backgroundColor: task.priority == 'High' || task.priority == 'Urgent'
-                          ? Colors.red.shade900
-                          : Colors.blueGrey.shade800,
+                      label: Text(
+                        task.priority,
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: task.priority == 'High' || task.priority == 'Urgent'
+                              ? Colors.redAccent
+                              : AppTheme.primaryNeon,
+                        ),
+                      ),
+                      backgroundColor: AppTheme.inputBackground,
+                      side: BorderSide(
+                        color: task.priority == 'High' || task.priority == 'Urgent'
+                            ? Colors.redAccent
+                            : AppTheme.cardBorder,
+                      ),
                       padding: EdgeInsets.zero,
                       visualDensity: VisualDensity.compact,
                     ),
                     IconButton(
-                      icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
+                      icon: const Icon(Icons.delete_outline, color: Colors.redAccent, size: 20),
                       onPressed: () => _controller.deleteTask(task),
                     ),
                   ],
@@ -92,23 +131,29 @@ class TaskManagementView extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Create New Task'),
+        backgroundColor: AppTheme.cardBackground,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Create New Task', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
               controller: titleCtrl,
-              decoration: const InputDecoration(labelText: 'Title', border: OutlineInputBorder()),
+              style: const TextStyle(color: Colors.white),
+              decoration: const InputDecoration(labelText: 'Task Title'),
             ),
             const SizedBox(height: 16),
             TextField(
               controller: descCtrl,
-              decoration: const InputDecoration(labelText: 'Description', border: OutlineInputBorder()),
+              style: const TextStyle(color: Colors.white),
+              decoration: const InputDecoration(labelText: 'Description'),
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
               value: priority,
-              decoration: const InputDecoration(labelText: 'Priority', border: OutlineInputBorder()),
+              dropdownColor: AppTheme.cardBackground,
+              style: const TextStyle(color: Colors.white),
+              decoration: const InputDecoration(labelText: 'Priority'),
               items: ['Low', 'Medium', 'High', 'Urgent']
                   .map((p) => DropdownMenuItem(value: p, child: Text(p)))
                   .toList(),
@@ -117,7 +162,7 @@ class TaskManagementView extends StatelessWidget {
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Get.back(), child: const Text('Cancel')),
+          TextButton(onPressed: () => Get.back(), child: const Text('Cancel', style: TextStyle(color: AppTheme.slate))),
           ElevatedButton(
             onPressed: () async {
               if (titleCtrl.text.trim().isNotEmpty) {
@@ -125,7 +170,7 @@ class TaskManagementView extends StatelessWidget {
                 if (ok) Get.back();
               }
             },
-            child: const Text('Save'),
+            child: const Text('Save Task'),
           ),
         ],
       ),
@@ -138,26 +183,28 @@ class TaskManagementView extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Submit Agent Intent'),
+        backgroundColor: AppTheme.cardBackground,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Submit Agent Intent', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             const Text(
-              'Enter a natural language command for the Personal Agent.',
-              style: TextStyle(fontSize: 12, color: Colors.grey),
+              'Enter a natural language command for the Autonomous Personal Agent.',
+              style: TextStyle(fontSize: 12, color: AppTheme.slate),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 14),
             TextField(
               controller: intentCtrl,
+              style: const TextStyle(color: Colors.white),
               decoration: const InputDecoration(
-                hintText: 'e.g. Create a task to review PR',
-                border: OutlineInputBorder(),
+                hintText: 'e.g. Plan goal Build 25 engine model',
               ),
             ),
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Get.back(), child: const Text('Cancel')),
+          TextButton(onPressed: () => Get.back(), child: const Text('Cancel', style: TextStyle(color: AppTheme.slate))),
           ElevatedButton(
             onPressed: () async {
               final text = intentCtrl.text.trim();
@@ -181,11 +228,13 @@ class TaskManagementView extends StatelessWidget {
       context: context,
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
+        backgroundColor: AppTheme.cardBackground,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Row(
           children: [
             Icon(Icons.warning_amber_rounded, color: Colors.amber),
             SizedBox(width: 8),
-            Text('Action Confirmation Required'),
+            Text('Action Authorization Required', style: TextStyle(color: Colors.white, fontSize: 16)),
           ],
         ),
         content: Column(
@@ -193,30 +242,32 @@ class TaskManagementView extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'The Personal Agent requests permission to perform a high-risk action:',
-              style: TextStyle(fontSize: 13),
+              'The Autonomous Personal Agent requests authorization for high-impact action:',
+              style: TextStyle(fontSize: 12, color: AppTheme.slate),
             ),
             const SizedBox(height: 12),
-            Card(
-              color: Colors.amber.shade900.withValues(alpha: 0.3),
-              child: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Text('Command: "$intent"', style: const TextStyle(fontWeight: FontWeight.bold)),
+            Container(
+              padding: const EdgeInsets.all(12.0),
+              decoration: BoxDecoration(
+                color: Colors.amber.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.amber.shade700),
               ),
+              child: Text('Command: "$intent"', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.amber)),
             ),
             const SizedBox(height: 12),
-            Text('Digest: ${digest.substring(0, 16)}...', style: const TextStyle(fontSize: 10, color: Colors.grey)),
+            Text('Security Digest: ${digest.substring(0, 16)}...', style: const TextStyle(fontSize: 10, color: AppTheme.slate)),
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Get.back(), child: const Text('Reject')),
+          TextButton(onPressed: () => Get.back(), child: const Text('Reject', style: TextStyle(color: Colors.redAccent))),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.amber.shade700),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.amber.shade700, foregroundColor: Colors.black),
             onPressed: () async {
               Get.back();
               await _controller.confirmAgentRun(runId, digest);
             },
-            child: const Text('Authorize & Execute'),
+            child: const Text('Authorize & Execute', style: TextStyle(fontWeight: FontWeight.bold)),
           ),
         ],
       ),

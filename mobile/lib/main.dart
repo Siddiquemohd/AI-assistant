@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'app/bindings/initial_binding.dart';
 import 'app/routes/app_pages.dart';
 import 'app/routes/app_routes.dart';
+import 'core/theme/app_theme.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,16 +16,9 @@ class IsaiApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      title: 'ISAI - Intelligent Personal AI Assistant',
+      title: 'ISAI — Personal Uncensored AI Assistant',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark().copyWith(
-        primaryColor: Colors.blueAccent,
-        scaffoldBackgroundColor: const Color(0xFF121212),
-        colorScheme: const ColorScheme.dark(
-          primary: Colors.blueAccent,
-          secondary: Colors.blueAccent,
-        ),
-      ),
+      theme: AppTheme.darkTheme,
       initialBinding: InitialBinding(),
       initialRoute: Routes.LOGIN,
       getPages: AppPages.routes,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../core/theme/app_theme.dart';
 import '../controllers/voice_controller.dart';
 
 class VoiceAssistantView extends StatelessWidget {
@@ -10,32 +11,53 @@ class VoiceAssistantView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppTheme.darkBackground,
       appBar: AppBar(
         title: const Text('ISAI — Voice Assistant'),
         centerTitle: true,
+        backgroundColor: Colors.transparent,
       ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
           child: Column(
             children: [
-              const SizedBox(height: 32),
+              const SizedBox(height: 16),
+              // Voice Status Header Pill
               Obx(() {
                 final state = _voiceController.state.value;
-                return Text(
-                  _getStateText(state),
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        color: Colors.blueAccent,
-                        fontWeight: FontWeight.bold,
+                return Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: AppTheme.cardBackground,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: _getCircleColor(state).withValues(alpha: 0.6)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: _getCircleColor(state).withValues(alpha: 0.3),
+                        blurRadius: 16,
                       ),
-                  textAlign: TextAlign.center,
+                    ],
+                  ),
+                  child: Text(
+                    _getStateText(state),
+                    style: TextStyle(
+                      color: _getCircleColor(state),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
                 );
               }),
-              const SizedBox(height: 48),
+              const SizedBox(height: 32),
+
+              // Glowing Pulsing Orb Visualizer
               Expanded(
                 child: Center(
                   child: Obx(() {
                     final state = _voiceController.state.value;
+                    final isActive = state == VoiceState.listening || state == VoiceState.speaking;
                     return GestureDetector(
                       onTap: () {
                         if (state == VoiceState.listening) {
@@ -48,78 +70,116 @@ class VoiceAssistantView extends StatelessWidget {
                       },
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 300),
-                        width: state == VoiceState.listening || state == VoiceState.speaking ? 160 : 120,
-                        height: state == VoiceState.listening || state == VoiceState.speaking ? 160 : 120,
+                        width: isActive ? 180 : 140,
+                        height: isActive ? 180 : 140,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: _getCircleColor(state),
+                          gradient: LinearGradient(
+                            colors: [
+                              _getCircleColor(state),
+                              _getCircleColor(state).withValues(alpha: 0.6),
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
                           boxShadow: [
                             BoxShadow(
-                              color: _getCircleColor(state).withValues(alpha: 0.5),
-                              blurRadius: 24,
-                              spreadRadius: 8,
+                              color: _getCircleColor(state).withValues(alpha: 0.6),
+                              blurRadius: isActive ? 40 : 20,
+                              spreadRadius: isActive ? 10 : 4,
                             ),
                           ],
                         ),
                         child: Icon(
                           _getIcon(state),
-                          size: 64,
-                          color: Colors.white,
+                          size: isActive ? 72 : 56,
+                          color: Colors.black,
                         ),
                       ),
                     );
                   }),
                 ),
               ),
+
+              // 10 Neural Voices Selector Title
+              const Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'NEURAL VOICE ENGINE (10 FEMALE VOICES)',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.2,
+                    color: AppTheme.primaryNeon,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+              SizedBox(
+                height: 40,
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  children: [
+                    _buildVoiceChip('Aria (Default)'),
+                    _buildVoiceChip('Jenny'),
+                    _buildVoiceChip('Ava'),
+                    _buildVoiceChip('Emma'),
+                    _buildVoiceChip('Sonia'),
+                    _buildVoiceChip('Clara'),
+                    _buildVoiceChip('Natasha'),
+                    _buildVoiceChip('Neerja'),
+                    _buildVoiceChip('Elvira'),
+                    _buildVoiceChip('Denise'),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // Recognized Speech Output Card
               Obx(() {
                 if (_voiceController.recognizedText.value.isNotEmpty) {
-                  return Card(
-                    color: Colors.grey[900],
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'You said:',
-                            style: TextStyle(color: Colors.grey, fontSize: 12),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            _voiceController.recognizedText.value,
-                            style: const TextStyle(fontSize: 16, color: Colors.white),
-                          ),
-                        ],
-                      ),
+                  return Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16.0),
+                    decoration: BoxDecoration(
+                      color: AppTheme.cardBackground,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppTheme.cardBorder),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Transcribed Speech:',
+                          style: TextStyle(color: AppTheme.slate, fontSize: 11, fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          _voiceController.recognizedText.value,
+                          style: const TextStyle(fontSize: 15, color: Colors.white),
+                        ),
+                      ],
                     ),
                   );
                 }
                 return const SizedBox.shrink();
               }),
               const SizedBox(height: 16),
-              Obx(() {
-                if (_voiceController.errorMessage.value.isNotEmpty) {
-                  return Text(
-                    _voiceController.errorMessage.value,
-                    style: const TextStyle(color: Colors.red),
-                    textAlign: TextAlign.center,
-                  );
-                }
-                return const SizedBox.shrink();
-              }),
-              const SizedBox(height: 24),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   ElevatedButton.icon(
                     onPressed: () => Get.back(),
-                    icon: const Icon(Icons.chat_bubble_outline),
-                    label: const Text('Text Mode'),
+                    icon: const Icon(Icons.chat_bubble_outline, color: Colors.black),
+                    label: const Text('Text Mode', style: TextStyle(color: Colors.black)),
                   ),
                   OutlinedButton.icon(
                     onPressed: () => _voiceController.cancelVoiceInteraction(),
-                    icon: const Icon(Icons.close),
-                    label: const Text('Cancel'),
+                    icon: const Icon(Icons.close, color: Colors.redAccent),
+                    label: const Text('Cancel', style: TextStyle(color: Colors.redAccent)),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: Colors.redAccent),
+                    ),
                   ),
                 ],
               ),
@@ -130,22 +190,41 @@ class VoiceAssistantView extends StatelessWidget {
     );
   }
 
+  Widget _buildVoiceChip(String name) {
+    final isSelected = name.contains('Aria');
+    return Container(
+      margin: const EdgeInsets.only(right: 8),
+      child: Chip(
+        label: Text(
+          name,
+          style: TextStyle(
+            color: isSelected ? Colors.black : Colors.white,
+            fontSize: 12,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+          ),
+        ),
+        backgroundColor: isSelected ? AppTheme.primaryNeon : AppTheme.cardBackground,
+        side: BorderSide(color: isSelected ? AppTheme.primaryNeon : AppTheme.cardBorder),
+      ),
+    );
+  }
+
   String _getStateText(VoiceState state) {
     switch (state) {
       case VoiceState.idle:
-        return 'Tap microphone to speak';
+        return 'Tap orb to speak to ISAI';
       case VoiceState.requestingPermission:
-        return 'Requesting microphone permission...';
+        return 'Requesting microphone...';
       case VoiceState.listening:
-        return 'Listening... Tap to finish';
+        return 'Listening... Tap when finished';
       case VoiceState.processingSpeech:
-        return 'Processing speech...';
+        return 'Transcribing audio...';
       case VoiceState.sendingToAssistant:
-        return 'ISAI is thinking...';
+        return 'ISAI is processing...';
       case VoiceState.speaking:
         return 'ISAI is speaking...';
       case VoiceState.paused:
-        return 'Paused';
+        return 'Voice Paused';
       case VoiceState.cancelling:
         return 'Cancelling...';
       case VoiceState.failed:
@@ -156,16 +235,16 @@ class VoiceAssistantView extends StatelessWidget {
   Color _getCircleColor(VoiceState state) {
     switch (state) {
       case VoiceState.listening:
-        return Colors.redAccent;
+        return AppTheme.accentPink;
       case VoiceState.speaking:
-        return Colors.greenAccent.shade700;
+        return AppTheme.accentEmerald;
       case VoiceState.sendingToAssistant:
       case VoiceState.processingSpeech:
-        return Colors.amber.shade700;
+        return AppTheme.secondaryNeon;
       case VoiceState.failed:
-        return Colors.grey;
+        return Colors.redAccent;
       default:
-        return Colors.blueAccent;
+        return AppTheme.primaryNeon;
     }
   }
 
@@ -174,7 +253,7 @@ class VoiceAssistantView extends StatelessWidget {
       case VoiceState.listening:
         return Icons.mic;
       case VoiceState.speaking:
-        return Icons.volume_up_rounded;
+        return Icons.graphic_eq_rounded;
       case VoiceState.sendingToAssistant:
       case VoiceState.processingSpeech:
         return Icons.hourglass_top_rounded;
