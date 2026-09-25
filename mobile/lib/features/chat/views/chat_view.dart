@@ -40,7 +40,7 @@ class ChatView extends StatelessWidget {
                 ),
                 const SizedBox(width: 6),
                 const Text(
-                  '30 ENGINES ONLINE • 100% UNCENSORED',
+                  '35 ENGINES ONLINE • 100% UNCENSORED',
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
