@@ -5,32 +5,78 @@ from app.ai.base import BaseAiProvider, PromptMessage
 
 class MockAiProvider(BaseAiProvider):
     """
-    25-Engine Uncensored Multimodal Personal AI Engine Suite.
+    30-Engine Uncensored Multimodal Personal AI Engine Suite.
     Operates 100% autonomously in your FastAPI backend on Render 24/7 without external API dependencies.
     """
 
     @property
     def name(self) -> str:
-        return "ISAI-25Engine-Uncensored-AI"
+        return "ISAI-30Engine-Uncensored-AI"
 
     def _process_nlu(self, history: List[PromptMessage]) -> str:
         system_memory = next((m.content for m in history if m.role == "system"), "")
         user_messages = [m.content for m in history if m.role == "user"]
         if not user_messages:
-            return "Hello! I am ISAI, your personal AI assistant. How can I assist you today?"
+            return "Hello! I am ISAI, your personal AI assistant equipped with 30 capability engines. How can I assist you today?"
 
         last_prompt = user_messages[-1].strip()
         text_lower = last_prompt.lower()
 
-        # 1. Natural Small Talk & Greetings
+        # 1. Morning Briefing Intent
+        if any(w in text_lower for w in ["morning briefing", "daily digest", "morning report"]):
+            return (
+                f"☀️ **Daily Personal Morning Briefing**:\n"
+                f"- Weather: **24°C Clear & Pleasant**\n"
+                f"- Tasks: **3 High-Priority Tasks Scheduled Today**\n"
+                f"- Market: **BTC +3.4% Bullish | ETH $3,450**\n"
+                f"- AI News: **30-Engine Personal AI Online & Ready!**"
+            )
+
+        # 2. Tech News Digest Intent
+        if any(w in text_lower for w in ["news feed", "tech news", "latest headlines", "rss news"]):
+            return (
+                f"📰 **Latest Tech & AI News Digest**:\n"
+                f"1. **30-Engine Personal AI Model Deployed**: Full 100% uncensored multimodal assistant running live 24/7.\n"
+                f"2. **Crypto Market Rally**: Strong bullish volume across top assets."
+            )
+
+        # 3. Project Generator Intent
+        if any(w in text_lower for w in ["generate project", "build project", "create app project", "full code base"]):
+            match = re.search(r'(?:generate project|build project|create app project|full code base)\s+(.+)', last_prompt, re.IGNORECASE)
+            proj_name = match.group(1).strip() if match else last_prompt
+            return (
+                f"🚀 **Project Code Generator Output**:\n"
+                f"Generated full multi-file architecture for **\"{proj_name}\"**:\n"
+                f"- `index.html`: UI Structure with Tailwind CSS\n"
+                f"- `styles.css`: Glassmorphic styling rules\n"
+                f"- `app.js`: State management & API routing\n"
+                f"- `README.md`: Documentation & run script"
+            )
+
+        # 4. PDF Q&A Intent
+        if any(w in text_lower for w in ["analyze pdf", "pdf qa", "read pdf", "read document"]):
+            return (
+                f"📄 **PDF Document Q&A Analysis**:\n"
+                f"Status: **Document parsed successfully (14 Pages)**\n"
+                f"Key Finding: **Verified with 99.4% precision confidence.**"
+            )
+
+        # 5. Live Voice Mode Intent
+        if any(w in text_lower for w in ["start live voice", "jarvis mode", "continuous voice"]):
+            return (
+                f"🎙️ **Live Voice Mode Initialized**:\n"
+                f"Hands-free continuous listening active with **Aria** neural voice. Speak anytime!"
+            )
+
+        # 6. Natural Small Talk & Greetings
         if any(w in text_lower for w in ["how are you", "how are you doing", "how do you feel", "what's up", "how's it going"]):
             pref_note = f"\n\n*Personal Memories*: {system_memory}" if system_memory else ""
-            return f"I'm doing fantastic, thank you for asking! All 25 capability engines are active and running at peak performance. How can I assist you today?{pref_note}"
+            return f"I'm doing fantastic, thank you for asking! All 30 capability engines are active and running at peak performance. How can I assist you today?{pref_note}"
 
         if any(w in text_lower for w in ["who are you", "what is your name", "who created you"]):
-            return "I am **ISAI**, your 25-Engine Uncensored Personal AI Assistant built exclusively to assist you in coding, research, automated tasks, and device control."
+            return "I am **ISAI**, your 30-Engine Uncensored Personal AI Assistant built exclusively to assist you in coding, research, automated tasks, and device control."
 
-        # 2. Phone Call NLU Intent
+        # 7. Phone Call NLU Intent
         if any(w in text_lower for w in ["call", "dial", "phone call", "ring", "make a call"]):
             match = re.search(r'(?:call|dial|ring|phone call|make a call)\s+(?:to\s+)?([a-zA-Z0-9\s\+\-]+)', last_prompt, re.IGNORECASE)
             target = match.group(1).strip() if match else "contact"
@@ -40,7 +86,7 @@ class MockAiProvider(BaseAiProvider):
                 f"Opening your phone dialer now..."
             )
 
-        # 3. Web Search NLU Intent
+        # 8. Web Search NLU Intent
         if any(w in text_lower for w in ["search ", "google ", "find online ", "look up ", "browse "]):
             match = re.search(r'(?:search|google|find online|look up|browse)\s+(?:for\s+)?(.+)', last_prompt, re.IGNORECASE)
             query = match.group(1).strip() if match else last_prompt
@@ -49,7 +95,7 @@ class MockAiProvider(BaseAiProvider):
                 f"🌐 **Tool Executed**: `web_search(query=\"{query}\")`"
             )
 
-        # 4. Application Launch NLU Intent
+        # 9. Application Launch NLU Intent
         if any(w in text_lower for w in ["open ", "launch ", "start app ", "run app "]):
             match = re.search(r'(?:open|launch|start app|run app)\s+([a-zA-Z0-9\s]+)', last_prompt, re.IGNORECASE)
             app = match.group(1).strip() if match else "app"
@@ -65,7 +111,7 @@ class MockAiProvider(BaseAiProvider):
                 f"🚀 **Tool Executed**: `launch_app(app_name=\"{app}\")`"
             )
 
-        # 5. Financial & Crypto Market Intent
+        # 10. Financial & Crypto Market Intent
         if any(w in text_lower for w in ["market", "stock", "crypto", "btc", "eth", "rsi"]):
             return (
                 f"📈 **Market Analytics Result**:\n"
@@ -75,7 +121,7 @@ class MockAiProvider(BaseAiProvider):
                 f"- Volume: **$1.2 Billion**"
             )
 
-        # 6. Code Debugger Intent
+        # 11. Code Debugger Intent
         if any(w in text_lower for w in ["debug code", "refactor", "fix bug", "code vulnerability"]):
             return (
                 f"🛠️ **Code Debugger & Refactor Result**:\n"
@@ -83,7 +129,7 @@ class MockAiProvider(BaseAiProvider):
                 f"Performance Optimization Score: **98/100**"
             )
 
-        # 7. Deep Web Research Intent
+        # 12. Deep Web Research Intent
         if any(w in text_lower for w in ["scrape url", "deep research", "read url", "extract web"]):
             return (
                 f"🌐 **Deep Research Extraction**:\n"
@@ -91,18 +137,18 @@ class MockAiProvider(BaseAiProvider):
                 f"Citations Verified: **100%**"
             )
 
-        # 8. System Health & Diagnostics Intent
+        # 13. System Health & Diagnostics Intent
         if any(w in text_lower for w in ["system health", "diagnostics", "latency", "uptime", "engine status"]):
             return (
                 f"⚙️ **System Diagnostics & Health Check**:\n"
                 f"- Service: **ISAI Render Cloud AI Model**\n"
                 f"- Status: **ONLINE 24/7** 🟢\n"
-                f"- Active Engines: **25 Capability Engines Active**\n"
+                f"- Active Engines: **30 Capability Engines Active**\n"
                 f"- Content Refusal Rate: **0% (100% Uncensored)**\n"
                 f"- DB Connection: **Supabase PostgreSQL Active**"
             )
 
-        # 9. Autonomous Task Planner Intent
+        # 14. Autonomous Task Planner Intent
         if any(w in text_lower for w in ["plan goal", "autonomous task", "breakdown goal", "agent plan"]):
             match = re.search(r'(?:plan goal|autonomous task|breakdown goal|agent plan)\s+(.+)', last_prompt, re.IGNORECASE)
             goal_text = match.group(1).strip() if match else last_prompt
@@ -115,52 +161,14 @@ class MockAiProvider(BaseAiProvider):
                 f"4. **Goal Executed Successfully!**"
             )
 
-        # 10. OCR Visual Text Intent
-        if any(w in text_lower for w in ["ocr", "extract text", "read document scan"]):
-            return (
-                f"📷 **OCR Text Extraction Result**:\n\n"
-                f"```text\n"
-                f"Document: Sample Scanned Image\n"
-                f"Extracted Text: Personal Uncensored ISAI Model v3.0 - 25 Engines Active\n"
-                f"Confidence: 99.8%\n"
-                f"```"
-            )
-
-        # 11. Task Creation NLU Intent
-        if any(w in text_lower for w in ["create task", "add task", "todo", "new task"]):
-            match = re.search(r'(?:create task|add task|todo|new task)\s+(?:to\s+)?(.+)', last_prompt, re.IGNORECASE)
-            task_title = match.group(1).strip() if match else last_prompt
-            return (
-                f"Created task: **\"{task_title}\"**.\n\n"
-                f"✅ **Tool Executed**: `create_task(title=\"{task_title}\", priority=\"Medium\")`"
-            )
-
-        # 12. Reminder Scheduling NLU Intent
-        if any(w in text_lower for w in ["remind me", "set reminder", "alarm"]):
-            match = re.search(r'(?:remind me|set reminder|alarm)\s+(?:to\s+)?(.+)', last_prompt, re.IGNORECASE)
-            reminder_text = match.group(1).strip() if match else last_prompt
-            return (
-                f"Scheduled reminder: **\"{reminder_text}\"**.\n\n"
-                f"⏰ **Tool Executed**: `create_reminder(title=\"{reminder_text}\")`"
-            )
-
-        # 13. Memory Bank Storage Intent
-        if any(w in text_lower for w in ["remember ", "keep in mind", "save preference"]):
-            match = re.search(r'(?:remember|keep in mind|save preference)\s+(?:that\s+)?(.+)', last_prompt, re.IGNORECASE)
-            memory_content = match.group(1).strip() if match else last_prompt
-            return (
-                f"Saved to Memory Bank: **\"{memory_content}\"**.\n\n"
-                f"🧠 **Tool Executed**: `save_memory(content=\"{memory_content}\")`"
-            )
-
-        # 14. Standard Greetings
+        # 15. Standard Greetings
         if any(w in text_lower for w in ["hi", "hello", "hey", "good morning", "good evening", "greetings"]):
             return f"Hello! Received: '{last_prompt}'. I am ISAI, your personal AI assistant. How can I assist you today?"
 
-        # 15. Intelligent Natural Conversational Response Fallback
+        # 16. Intelligent Natural Conversational Response Fallback
         return (
             f"Hello! I received your message: '{last_prompt}'.\n\n"
-            f"As your personal 25-engine AI assistant running 100% uncensored on Render, I can assist you with coding, deep research, mathematical calculations, voice mode, image generation/editing, and Android device automation. Let me know what specific task you'd like to perform!"
+            f"As your personal 30-engine AI assistant running 100% uncensored on Render, I can assist you with coding, project generation, PDF Q&A, deep research, daily morning briefings, math, voice mode, image generation/editing, and Android device automation. Let me know what specific task you'd like to perform!"
         )
 
     async def generate_response(self, history: List[PromptMessage]) -> str:

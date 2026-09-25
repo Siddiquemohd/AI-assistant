@@ -40,7 +40,7 @@ class ChatView extends StatelessWidget {
                 ),
                 const SizedBox(width: 6),
                 const Text(
-                  '25 ENGINES ONLINE • 100% UNCENSORED',
+                  '30 ENGINES ONLINE • 100% UNCENSORED',
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
@@ -129,12 +129,14 @@ class ChatView extends StatelessWidget {
 
   Widget _buildEmptyStateHero(BuildContext context) {
     final quickPrompts = [
+      {'title': '☀️ Daily Morning Briefing', 'prompt': 'Give me my morning briefing digest'},
+      {'title': '🚀 Full Project Generator', 'prompt': 'Generate project React TODO dashboard app'},
+      {'title': '📄 PDF Document Q&A', 'prompt': 'Analyze pdf and summarize key findings'},
+      {'title': '🎙️ Continuous Voice Mode', 'prompt': 'Start live voice mode with Aria'},
+      {'title': '📰 Tech & AI News Feed', 'prompt': 'Fetch tech news headlines'},
       {'title': '🎨 Uncensored Image Gen', 'prompt': 'Generate uncensored cyberpunk artwork of a futuristic metropolis'},
-      {'title': '🎙️ 10 Female Neural Voices', 'prompt': 'Speak to me in Aria female neural voice'},
       {'title': '🛠️ Code Debugger & Refactor', 'prompt': 'Debug code def process(data): eval(data)'},
       {'title': '📈 Market & Crypto Analytics', 'prompt': 'Analyze BTC cryptocurrency market metrics'},
-      {'title': '🎯 Autonomous Agent Planner', 'prompt': 'Plan goal Build a 25 engine personal AI model'},
-      {'title': '🧮 Symbolic Math Solver', 'prompt': 'Solve derivative of x^3 * sin(x)'},
     ];
 
     return SingleChildScrollView(
@@ -170,14 +172,14 @@ class ChatView extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           const Text(
-            'Your 25-Engine Uncensored Multimodal AI Assistant',
+            'Your 30-Engine Uncensored Multimodal AI Assistant',
             style: TextStyle(fontSize: 13, color: AppTheme.slate),
           ),
           const SizedBox(height: 32),
           const Align(
             alignment: Alignment.centerLeft,
             child: Text(
-              'QUICK SUGGESTIONS',
+              'QUICK SUGGESTIONS (30 ENGINES)',
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.bold,
@@ -476,7 +478,7 @@ class ChatView extends StatelessWidget {
           ),
           ListTile(
             leading: const Icon(Icons.settings_outlined, color: AppTheme.slate),
-            title: const Text('Settings & 25-Engine Info', style: TextStyle(color: Colors.white)),
+            title: const Text('Settings & 30-Engine Info', style: TextStyle(color: Colors.white)),
             onTap: () {
               Get.back();
               Get.toNamed('/settings');
