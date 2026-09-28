@@ -74,11 +74,12 @@ class MockAiProvider(BaseAiProvider):
             )
 
         # 6. Tech News Digest Intent
-        if any(w in text_lower for w in ["news feed", "tech news", "latest headlines", "rss news"]):
+        if any(w in text_lower for w in ["news feed", "tech news", "latest headlines", "rss news", "tech new", "technology news", "news"]):
             return (
                 f"📰 **Latest Tech & AI News Digest**:\n"
-                f"1. **35-Engine Personal AI Model Deployed**: Full 100% uncensored multimodal assistant running live 24/7.\n"
-                f"2. **Crypto Market Rally**: Strong bullish volume across top assets."
+                f"1. **ISAI 35-Engine AI Online**: Full 100% uncensored multimodal assistant running live 24/7 on Render Cloud.\n"
+                f"2. **AI & Robotics Advances**: New multimodal foundation models with real-time voice and vision capabilities released.\n"
+                f"3. **Quantum & Hardware Breakthroughs**: Next-gen neural accelerators achieving 4x efficiency gains."
             )
 
         # 7. Project Generator Intent
@@ -112,10 +113,10 @@ class MockAiProvider(BaseAiProvider):
         # 10. Natural Small Talk & Greetings
         if any(w in text_lower for w in ["how are you", "how are you doing", "how do you feel", "what's up", "how's it going"]):
             pref_note = f"\n\n*Personal Memories*: {system_memory}" if system_memory else ""
-            return f"I'm doing fantastic, thank you for asking! All 35 capability engines are active and running at peak performance. How can I assist you today?{pref_note}"
+            return f"I'm doing fantastic, thank you for asking! I'm fully energized and ready to assist you with anything today. What's on your mind?{pref_note}"
 
         if any(w in text_lower for w in ["who are you", "what is your name", "who created you"]):
-            return "I am **ISAI**, your 35-Engine Uncensored Personal AI Assistant built exclusively to assist you in coding, research, automated tasks, and device control."
+            return "I am **ISAI**, your personal AI Assistant built exclusively to assist you with coding, deep research, productivity, and hands-free voice automation."
 
         # 11. Phone Call NLU Intent
         if any(w in text_lower for w in ["call", "dial", "phone call", "ring", "make a call"]):
@@ -153,7 +154,7 @@ class MockAiProvider(BaseAiProvider):
             )
 
         # 14. Financial & Crypto Market Intent
-        if any(w in text_lower for w in ["market", "stock", "crypto", "btc", "eth", "rsi"]):
+        if any(w in text_lower for w in ["market price", "stock market", "crypto market", "btc price", "eth price", "rsi index"]):
             return (
                 f"📈 **Market Analytics Result**:\n"
                 f"- Asset: **BTC / ETH / Market Index**\n"
@@ -204,12 +205,16 @@ class MockAiProvider(BaseAiProvider):
 
         # 19. Standard Greetings
         if any(w in text_lower for w in ["hi", "hello", "hey", "good morning", "good evening", "greetings"]):
-            return "Hello! I am ISAI, your personal 35-Engine AI Assistant. How can I assist you today?"
+            return "Hello! It's great to connect with you. How can I assist you today?"
 
-        # 20. Intelligent Natural Conversational Response Fallback
+        # 20. Acknowledgments & Encouragements
+        if any(w in text_lower for w in ["good", "great", "awesome", "cool", "nice", "ok", "okay", "thanks", "thank you"]):
+            return "I'm glad to hear that! Feel free to ask me anything else whenever you're ready."
+
+        # 21. Intelligent Natural Conversational Response Fallback
         return (
-            "I'm here to help! As your personal 35-engine AI assistant, I can assist you with code debugging, SQL query generation, project creation, PDF analysis, deep research, fitness plans, resume building, morning briefings, symbolic math, live voice mode, and Android device automation.\n\n"
-            "What would you like to explore or do next?"
+            "I'm right here with you! I can help you search the web, analyze documents, write code, build project architectures, create workout routines, or control your phone hands-free by voice.\n\n"
+            "Feel free to ask any question or give me a command!"
         )
 
     async def generate_response(self, history: List[PromptMessage]) -> str:
