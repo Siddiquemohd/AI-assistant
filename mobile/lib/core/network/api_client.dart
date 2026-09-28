@@ -22,9 +22,12 @@ class ApiClient {
     dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
-          final token = await _storageService.getAccessToken();
-          if (token != null && token.isNotEmpty) {
-            options.headers['Authorization'] = 'Bearer $token';
+          final isPublicAuthEndpoint = options.path.contains('/auth/login') || options.path.contains('/auth/register');
+          if (!isPublicAuthEndpoint) {
+            final token = await _storageService.getAccessToken();
+            if (token != null && token.isNotEmpty) {
+              options.headers['Authorization'] = 'Bearer $token';
+            }
           }
           return handler.next(options);
         },

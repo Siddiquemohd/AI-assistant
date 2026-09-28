@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import '../../chat/controllers/chat_controller.dart';
 import '../services/voice_stt_service.dart';
 import '../services/voice_tts_service.dart';
+import '../services/voice_biometrics_service.dart';
 
 enum VoiceState {
   idle,
@@ -18,12 +19,15 @@ enum VoiceState {
 class VoiceController extends GetxController {
   final VoiceSttService _sttService = VoiceSttService();
   final VoiceTtsService _ttsService = VoiceTtsService();
+  final VoiceBiometricsService _biometricsService = VoiceBiometricsService();
   final ChatController _chatController = Get.find<ChatController>();
 
   final Rx<VoiceState> state = VoiceState.idle.obs;
   final RxString recognizedText = ''.obs;
   final RxString assistantResponseText = ''.obs;
   final RxString errorMessage = ''.obs;
+  final RxBool isHandsFreeMode = false.obs;
+  final RxBool isVoiceEnrolled = false.obs;
 
   @override
   void onInit() {
@@ -34,6 +38,18 @@ class VoiceController extends GetxController {
   Future<void> _initServices() async {
     await _sttService.initialize();
     await _ttsService.initialize();
+    checkEnrollmentStatus();
+  }
+
+  Future<void> checkEnrollmentStatus() async {
+    isVoiceEnrolled.value = await _biometricsService.isVoiceEnrolled();
+  }
+
+  void toggleHandsFreeMode() {
+    isHandsFreeMode.value = !isHandsFreeMode.value;
+    if (isHandsFreeMode.value && state.value == VoiceState.idle) {
+      startVoiceInteraction();
+    }
   }
 
   Future<void> startVoiceInteraction() async {
@@ -55,9 +71,21 @@ class VoiceController extends GetxController {
     await _sttService.startListening(
       onResult: (text) {
         recognizedText.value = text;
+        if (isHandsFreeMode.value && text.trim().isNotEmpty) {
+          // Auto-trigger when speech ends in hands-free mode
+          _debounceAndProcess();
+        }
       },
       onSoundLevelChanged: () {},
     );
+  }
+
+  void _debounceAndProcess() {
+    Future.delayed(const Duration(milliseconds: 1200), () {
+      if (state.value == VoiceState.listening && recognizedText.value.trim().isNotEmpty) {
+        stopListeningAndProcess();
+      }
+    });
   }
 
   Future<void> stopListeningAndProcess() async {
@@ -69,6 +97,17 @@ class VoiceController extends GetxController {
     final textToSend = recognizedText.value.trim();
     if (textToSend.isEmpty) {
       state.value = VoiceState.idle;
+      if (isHandsFreeMode.value) {
+        startVoiceInteraction();
+      }
+      return;
+    }
+
+    // Voice Biometric Speaker Signature Verification
+    final isAuthoritativeVoice = await _biometricsService.verifySpeaker(textToSend);
+    if (!isAuthoritativeVoice) {
+      errorMessage.value = 'Unrecognized voice profile. Command rejected for security.';
+      state.value = VoiceState.failed;
       return;
     }
 
@@ -86,14 +125,22 @@ class VoiceController extends GetxController {
         lastAssistantMsg.content,
         onComplete: () {
           state.value = VoiceState.idle;
+          if (isHandsFreeMode.value) {
+            // Siri/Alexa continuous conversation loop
+            startVoiceInteraction();
+          }
         },
       );
     } else {
       state.value = VoiceState.idle;
+      if (isHandsFreeMode.value) {
+        startVoiceInteraction();
+      }
     }
   }
 
   Future<void> cancelVoiceInteraction() async {
+    isHandsFreeMode.value = false;
     state.value = VoiceState.cancelling;
     await _sttService.cancelListening();
     await _ttsService.stop();
@@ -103,6 +150,9 @@ class VoiceController extends GetxController {
   Future<void> stopSpeaking() async {
     await _ttsService.stop();
     state.value = VoiceState.idle;
+    if (isHandsFreeMode.value) {
+      startVoiceInteraction();
+    }
   }
 
   @override

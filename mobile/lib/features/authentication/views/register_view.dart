@@ -10,6 +10,7 @@ class RegisterView extends StatelessWidget {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final AuthController _authController = Get.find<AuthController>();
+  final RxBool _isPasswordVisible = false.obs;
 
   @override
   Widget build(BuildContext context) {
@@ -110,15 +111,24 @@ class RegisterView extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 16),
-                        TextField(
+                        Obx(() => TextField(
                           controller: _passwordController,
-                          obscureText: true,
+                          obscureText: !_isPasswordVisible.value,
                           style: const TextStyle(color: Colors.white),
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             labelText: 'Password',
-                            prefixIcon: Icon(Icons.lock_outline, color: AppTheme.primaryNeon),
+                            prefixIcon: const Icon(Icons.lock_outline, color: AppTheme.primaryNeon),
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _isPasswordVisible.value ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                                color: AppTheme.slate,
+                              ),
+                              onPressed: () {
+                                _isPasswordVisible.value = !_isPasswordVisible.value;
+                              },
+                            ),
                           ),
-                        ),
+                        )),
                         const SizedBox(height: 24),
                         Obx(() {
                           if (_authController.errorMessage.value.isNotEmpty) {

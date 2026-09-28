@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../core/theme/app_theme.dart';
 import '../controllers/voice_controller.dart';
+import 'voice_registration_view.dart';
 
 class VoiceAssistantView extends StatelessWidget {
   VoiceAssistantView({super.key});
@@ -26,28 +27,73 @@ class VoiceAssistantView extends StatelessWidget {
               // Voice Status Header Pill
               Obx(() {
                 final state = _voiceController.state.value;
-                return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  decoration: BoxDecoration(
-                    color: AppTheme.cardBackground,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: _getCircleColor(state).withValues(alpha: 0.6)),
-                    boxShadow: [
-                      BoxShadow(
-                        color: _getCircleColor(state).withValues(alpha: 0.3),
-                        blurRadius: 16,
-                      ),
-                    ],
-                  ),
-                  child: Text(
-                    _getStateText(state),
-                    style: TextStyle(
-                      color: _getCircleColor(state),
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15,
+                final isHandsFree = _voiceController.isHandsFreeMode.value;
+                return Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: AppTheme.cardBackground,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: _getCircleColor(state).withValues(alpha: 0.6)),
+                            boxShadow: [
+                              BoxShadow(
+                                color: _getCircleColor(state).withValues(alpha: 0.3),
+                                blurRadius: 16,
+                              ),
+                            ],
+                          ),
+                          child: Text(
+                            isHandsFree ? '🎙️ Siri/Alexa Hands-Free Mode ACTIVE' : _getStateText(state),
+                            style: TextStyle(
+                              color: _getCircleColor(state),
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ],
                     ),
-                    textAlign: TextAlign.center,
-                  ),
+                    const SizedBox(height: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        FilterChip(
+                          avatar: Icon(
+                            isHandsFree ? Icons.auto_awesome : Icons.touch_app,
+                            color: isHandsFree ? Colors.black : AppTheme.primaryNeon,
+                            size: 16,
+                          ),
+                          label: Text(
+                            isHandsFree ? 'Hands-Free: ON' : 'Hands-Free: OFF',
+                            style: TextStyle(
+                              color: isHandsFree ? Colors.black : Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          selected: isHandsFree,
+                          selectedColor: AppTheme.primaryNeon,
+                          backgroundColor: AppTheme.cardBackground,
+                          onSelected: (_) => _voiceController.toggleHandsFreeMode(),
+                        ),
+                        const SizedBox(width: 12),
+                        ActionChip(
+                          avatar: const Icon(Icons.security, color: AppTheme.secondaryNeon, size: 16),
+                          label: const Text(
+                            'Voice Setup',
+                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                          ),
+                          backgroundColor: AppTheme.cardBackground,
+                          side: const BorderSide(color: AppTheme.secondaryNeon),
+                          onPressed: () => Get.to(() => const VoiceRegistrationView()),
+                        ),
+                      ],
+                    ),
+                  ],
                 );
               }),
               const SizedBox(height: 32),
