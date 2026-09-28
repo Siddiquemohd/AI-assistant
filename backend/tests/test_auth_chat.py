@@ -45,4 +45,5 @@ async def test_register_and_login_flow():
         assert res_msg.status_code == 200
         data_msg = res_msg.json()
         assert data_msg["role"] == "assistant"
-        assert "Hello FastAPI" in data_msg["content"]
+        assert len(data_msg["content"]) > 0
+        assert "ISAI" in data_msg["content"]
