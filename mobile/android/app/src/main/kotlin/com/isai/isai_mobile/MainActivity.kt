@@ -2,6 +2,7 @@ package com.isai.isai_mobile
 
 import android.content.Intent
 import android.net.Uri
+import android.provider.ContactsContract
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
@@ -9,15 +10,48 @@ import io.flutter.plugin.common.MethodChannel
 class MainActivity : FlutterActivity() {
     private val CHANNEL = "com.isai.mobile/device_control"
 
+    private fun lookupContactNumber(nameQuery: String): String? {
+        try {
+            val uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI
+            val projection = arrayOf(
+                ContactsContract.CommonDataKinds.Phone.NUMBER,
+                ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME
+            )
+            val selection = "${ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME} LIKE ?"
+            val selectionArgs = arrayOf("%$nameQuery%")
+            val cursor = contentResolver.query(uri, projection, selection, selectionArgs, null)
+            cursor?.use {
+                if (it.moveToFirst()) {
+                    val numberIndex = it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
+                    if (numberIndex != -1) {
+                        return it.getString(numberIndex)
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            // Permission or cursor exception fallback
+        }
+        return null
+    }
+
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler { call, result ->
             when (call.method) {
                 "makePhoneCall" -> {
-                    val phoneNumber = call.argument<String>("phoneNumber") ?: ""
+                    val targetInput = call.argument<String>("phoneNumber") ?: ""
                     try {
-                        val cleanNum = phoneNumber.replace(Regex("[^0-9+]"), "")
-                        val uriStr = if (cleanNum.isNotEmpty()) "tel:$cleanNum" else "tel:$phoneNumber"
+                        var dialNumber = targetInput.replace(Regex("[^0-9+]"), "")
+
+                        if (dialNumber.length < 3) {
+                            // Target input is a contact name (e.g. "Ammi", "Mom", "John")
+                            val lookedUpNum = lookupContactNumber(targetInput)
+                            if (lookedUpNum != null) {
+                                dialNumber = lookedUpNum.replace(Regex("[^0-9+]"), "")
+                            }
+                        }
+
+                        val uriStr = if (dialNumber.isNotEmpty()) "tel:$dialNumber" else "tel:$targetInput"
                         val intent = Intent(Intent.ACTION_DIAL).apply {
                             data = Uri.parse(uriStr)
                         }
