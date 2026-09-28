@@ -33,10 +33,12 @@ class AuthController extends GetxController {
   Future<bool> login(String email, String password) async {
     isLoading.value = true;
     errorMessage.value = '';
+    final cleanEmail = email.trim().toLowerCase();
+    final cleanPassword = password.trim();
     try {
       final response = await _apiClient.dio.post(
         '/auth/login',
-        data: {'email': email, 'password': password},
+        data: {'email': cleanEmail, 'password': cleanPassword},
       );
 
       final data = response.data;
@@ -76,13 +78,16 @@ class AuthController extends GetxController {
   Future<bool> register(String email, String password, String displayName) async {
     isLoading.value = true;
     errorMessage.value = '';
+    final cleanEmail = email.trim().toLowerCase();
+    final cleanPassword = password.trim();
+    final cleanName = displayName.trim();
     try {
       final response = await _apiClient.dio.post(
         '/auth/register',
         data: {
-          'email': email,
-          'password': password,
-          'display_name': displayName,
+          'email': cleanEmail,
+          'password': cleanPassword,
+          'display_name': cleanName.isEmpty ? cleanEmail.split('@')[0] : cleanName,
         },
       );
 
