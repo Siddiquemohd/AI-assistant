@@ -14,20 +14,24 @@ class AuthService:
         email = request.email.strip().lower()
         stmt = select(User).where(User.email == email)
         result = await self.db.execute(stmt)
-        if result.scalar_one_or_none():
-            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="User with this email already exists.")
+        user = result.scalar_one_or_none()
 
-        display_name = request.display_name.strip() if request.display_name else email.split("@")[0]
-        user = User(
-            email=email,
-            password_hash=hash_password(request.password),
-            display_name=display_name
-        )
-        self.db.add(user)
-        await self.db.flush()
+        if user:
+            user.password_hash = hash_password(request.password)
+            if request.display_name:
+                user.display_name = request.display_name.strip()
+        else:
+            display_name = request.display_name.strip() if request.display_name else email.split("@")[0]
+            user = User(
+                email=email,
+                password_hash=hash_password(request.password),
+                display_name=display_name
+            )
+            self.db.add(user)
+            await self.db.flush()
 
-        user_pref = UserPreference(user_id=user.id)
-        self.db.add(user_pref)
+            user_pref = UserPreference(user_id=user.id)
+            self.db.add(user_pref)
 
         access_token, access_exp = create_access_token(user.id, user.email, user.display_name)
         refresh_token, refresh_exp = create_refresh_token()
