@@ -32,30 +32,16 @@ class CausalSelfAttention(nn.Module):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         B, T, C = x.shape
-        q = self.q_proj(x).view(B, T, self.n_heads, self.head_dim).transpose(1, 2) # (B, heads, T, head_dim)
+        q = self.q_proj(x).view(B, T, self.n_heads, self.head_dim).transpose(1, 2)
         k = self.k_proj(x).view(B, T, self.n_heads, self.head_dim).transpose(1, 2)
         v = self.v_proj(x).view(B, T, self.n_heads, self.head_dim).transpose(1, 2)
 
-        # Scaled Dot-Product Attention with Causal Mask
         scores = (q @ k.transpose(-2, -1)) / math.sqrt(self.head_dim)
         scores = scores.masked_fill(self.causal_mask[:, :, :T, :T] == 0, float('-inf'))
         attn_weights = F.softmax(scores, dim=-1)
         
-        output = attn_weights @ v # (B, heads, T, head_dim)
-        output = output.transpose(1, 2).contiguous().view(B, T, C)
+        output = (attn_weights @ v).transpose(1, 2).contiguous().view(B, T, C)
         return self.out_proj(output)
-
-class SwiGLUFeedForward(nn.Module):
-    def __init__(self, d_model: int, hidden_dim: int = None):
-        super().__init__()
-        if hidden_dim is None:
-            hidden_dim = int(4 * d_model * (2 / 3))
-        self.w1 = nn.Linear(d_model, hidden_dim, bias=False)
-        self.w2 = nn.Linear(hidden_dim, d_model, bias=False)
-        self.w3 = nn.Linear(d_model, hidden_dim, bias=False)
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        return self.w2(F.silu(self.w1(x)) * self.w3(x))
 
 class TransformerBlock(nn.Module):
     def __init__(self, d_model: int, n_heads: int, max_seq_len: int):
@@ -63,22 +49,25 @@ class TransformerBlock(nn.Module):
         self.attn_norm = RMSNorm(d_model)
         self.attn = CausalSelfAttention(d_model, n_heads, max_seq_len)
         self.ffn_norm = RMSNorm(d_model)
-        self.ffn = SwiGLUFeedForward(d_model)
+        hidden_dim = int(4 * d_model * (2 / 3))
+        self.w1 = nn.Linear(d_model, hidden_dim, bias=False)
+        self.w2 = nn.Linear(hidden_dim, d_model, bias=False)
+        self.w3 = nn.Linear(d_model, hidden_dim, bias=False)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = x + self.attn(self.attn_norm(x))
-        x = x + self.ffn(self.ffn_norm(x))
+        x = x + self.w2(F.silu(self.w1(self.ffn_norm(x))) * self.w3(self.ffn_norm(x)))
         return x
 
 class CustomLLMFromScratch(nn.Module):
-    def __init__(self, vocab_size: int, d_model: int = 512, n_layers: int = 6, n_heads: int = 8, max_seq_len: int = 1024):
+    def __init__(self, vocab_size: int, d_model: int = 256, n_layers: int = 4, n_heads: int = 4, max_seq_len: int = 64):
         super().__init__()
         self.vocab_size = vocab_size
         self.d_model = d_model
         self.max_seq_len = max_seq_len
 
-        self.token_embedding = nn.Embedding(vocab_size, d_model)
-        self.pos_embedding = nn.Embedding(max_seq_len, d_model)
+        self.token_emb = nn.Embedding(vocab_size, d_model)
+        self.pos_emb = nn.Embedding(max_seq_len, d_model)
         
         self.blocks = nn.ModuleList([
             TransformerBlock(d_model, n_heads, max_seq_len) for _ in range(n_layers)
@@ -88,7 +77,7 @@ class CustomLLMFromScratch(nn.Module):
         self.lm_head = nn.Linear(d_model, vocab_size, bias=False)
 
         # Weight tying
-        self.lm_head.weight = self.token_embedding.weight
+        self.lm_head.weight = self.token_emb.weight
 
         self.apply(self._init_weights)
 
@@ -104,8 +93,8 @@ class CustomLLMFromScratch(nn.Module):
         B, T = input_ids.shape
         pos = torch.arange(0, T, dtype=torch.long, device=input_ids.device)
         
-        tok_emb = self.token_embedding(input_ids)
-        pos_emb = self.pos_embedding(pos)
+        tok_emb = self.token_emb(input_ids)
+        pos_emb = self.pos_emb(pos)
         x = tok_emb + pos_emb
 
         for block in self.blocks:

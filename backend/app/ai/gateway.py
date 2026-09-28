@@ -1,15 +1,14 @@
 from typing import AsyncGenerator, List
 from app.ai.base import BaseAiProvider, PromptMessage
-from app.ai.mock_provider import MockAiProvider
+from app.ai.custom_pytorch_provider import CustomPyTorchProvider
 
 class AiGateway:
     """
     Primary AI Gateway for ISAI.
-    Operates 100% autonomously using ISAI's built-in self-contained AI engine
-    without requiring any external AI models, API keys, or third-party cloud services.
+    Operates 100% autonomously using ISAI's built-in self-contained PyTorch AI engine.
     """
     def __init__(self):
-        self._native_ai_engine = MockAiProvider()
+        self._native_ai_engine = CustomPyTorchProvider()
 
     def get_provider(self, mode: str = "auto") -> BaseAiProvider:
         return self._native_ai_engine

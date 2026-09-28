@@ -1,11 +1,12 @@
 import torch
 import torch.nn.functional as F
-from model import CustomLLMFromScratch
-from tokenizer import CustomTokenizer
+from app.ai.custom_model.model import CustomLLMFromScratch
+from app.ai.custom_model.tokenizer import CustomTokenizer
 
 def generate_text(model, tokenizer, prompt: str, max_new_tokens: int = 100, temperature: float = 0.7, top_k: int = 10, device: str = "cpu") -> str:
     model.eval()
-    token_ids = tokenizer.encode(prompt, add_special_tokens=False)
+    raw_ids = tokenizer.encode(prompt, add_special_tokens=False)
+    token_ids = [idx if idx < model.vocab_size else idx % model.vocab_size for idx in raw_ids]
     input_ids = torch.tensor([token_ids], dtype=torch.long, device=device)
 
     for _ in range(max_new_tokens):
