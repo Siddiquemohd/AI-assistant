@@ -1,6 +1,9 @@
 import os
 import asyncio
-import edge_tts
+try:
+    import edge_tts
+except ImportError:
+    edge_tts = None
 
 class UltraRealisticVoiceEngine:
     """

@@ -204,12 +204,12 @@ class MockAiProvider(BaseAiProvider):
 
         # 19. Standard Greetings
         if any(w in text_lower for w in ["hi", "hello", "hey", "good morning", "good evening", "greetings"]):
-            return f"Hello! Received: '{last_prompt}'. I am ISAI, your personal AI assistant. How can I assist you today?"
+            return "Hello! I am ISAI, your personal 35-Engine AI Assistant. How can I assist you today?"
 
         # 20. Intelligent Natural Conversational Response Fallback
         return (
-            f"Hello! I received your message: '{last_prompt}'.\n\n"
-            f"As your personal 35-engine AI assistant running 100% uncensored on Render, I can assist you with coding, SQL, project generation, PDF Q&A, deep research, fitness coaching, cover letters, daily morning briefings, math, voice mode, image generation/editing, and Android device automation. Let me know what specific task you'd like to perform!"
+            "I'm here to help! As your personal 35-engine AI assistant, I can assist you with code debugging, SQL query generation, project creation, PDF analysis, deep research, fitness plans, resume building, morning briefings, symbolic math, live voice mode, and Android device automation.\n\n"
+            "What would you like to explore or do next?"
         )
 
     async def generate_response(self, history: List[PromptMessage]) -> str:
