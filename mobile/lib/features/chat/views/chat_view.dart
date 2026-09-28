@@ -18,37 +18,39 @@ class ChatView extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppTheme.darkBackground,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0F172A),
-        elevation: 0,
+        backgroundColor: const Color(0xFF0D1322),
+        elevation: 4,
+        shadowColor: Colors.black.withValues(alpha: 0.5),
         title: Column(
           children: [
             Obx(() => Text(
                   _chatController.currentConversation.value?.title ?? 'ISAI Super-AI',
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16, letterSpacing: 0.5),
                 )),
             const SizedBox(height: 2),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 8,
-                  height: 8,
-                  decoration: const BoxDecoration(
-                    color: AppTheme.accentEmerald,
-                    shape: BoxShape.circle,
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+              decoration: BoxDecoration(
+                color: AppTheme.accentEmerald.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppTheme.accentEmerald.withValues(alpha: 0.4)),
+              ),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.bolt_rounded, size: 12, color: AppTheme.accentEmerald),
+                  SizedBox(width: 4),
+                  Text(
+                    '35 ENGINES ONLINE • 100% UNCENSORED',
+                    style: TextStyle(
+                      fontSize: 9,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.accentEmerald,
+                      letterSpacing: 0.8,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 6),
-                const Text(
-                  '35 ENGINES ONLINE • 100% UNCENSORED',
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w600,
-                    color: AppTheme.accentEmerald,
-                    letterSpacing: 0.8,
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ],
         ),
@@ -59,14 +61,15 @@ class ChatView extends StatelessWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: AppTheme.primaryNeon.withValues(alpha: 0.15),
+                border: Border.all(color: AppTheme.primaryNeon.withValues(alpha: 0.4)),
               ),
-              child: const Icon(Icons.mic_rounded, color: AppTheme.primaryNeon, size: 20),
+              child: const Icon(Icons.mic_rounded, color: AppTheme.primaryNeon, size: 18),
             ),
             tooltip: 'Voice Assistant',
             onPressed: () => Get.toNamed('/voice'),
           ),
           IconButton(
-            icon: const Icon(Icons.add_comment_outlined, color: Colors.white70),
+            icon: const Icon(Icons.add_comment_rounded, color: Colors.white70),
             tooltip: 'New Chat',
             onPressed: () => _chatController.createNewConversation(),
           ),
@@ -99,8 +102,11 @@ class ChatView extends StatelessWidget {
           Obx(() {
             if (_chatController.isStreaming.value) {
               return Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 6.0),
-                color: AppTheme.cardBackground,
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                decoration: const BoxDecoration(
+                  color: AppTheme.cardBackground,
+                  border: Border(top: BorderSide(color: AppTheme.cardBorder)),
+                ),
                 child: Row(
                   children: [
                     const Expanded(
@@ -113,7 +119,7 @@ class ChatView extends StatelessWidget {
                     TextButton.icon(
                       onPressed: () => _chatController.cancelStreaming(),
                       icon: const Icon(Icons.stop_circle_outlined, size: 16, color: Colors.redAccent),
-                      label: const Text('Stop', style: TextStyle(color: Colors.redAccent, fontSize: 12)),
+                      label: const Text('Stop', style: TextStyle(color: Colors.redAccent, fontSize: 12, fontWeight: FontWeight.bold)),
                     ),
                   ],
                 ),
@@ -129,14 +135,14 @@ class ChatView extends StatelessWidget {
 
   Widget _buildEmptyStateHero(BuildContext context) {
     final quickPrompts = [
-      {'title': '☀️ Daily Morning Briefing', 'prompt': 'Give me my morning briefing digest'},
-      {'title': '🚀 Full Project Generator', 'prompt': 'Generate project React TODO dashboard app'},
-      {'title': '📄 PDF Document Q&A', 'prompt': 'Analyze pdf and summarize key findings'},
-      {'title': '🎙️ Continuous Voice Mode', 'prompt': 'Start live voice mode with Aria'},
-      {'title': '📰 Tech & AI News Feed', 'prompt': 'Fetch tech news headlines'},
-      {'title': '🎨 Uncensored Image Gen', 'prompt': 'Generate uncensored cyberpunk artwork of a futuristic metropolis'},
-      {'title': '🛠️ Code Debugger & Refactor', 'prompt': 'Debug code def process(data): eval(data)'},
-      {'title': '📈 Market & Crypto Analytics', 'prompt': 'Analyze BTC cryptocurrency market metrics'},
+      {'icon': '☀️', 'title': 'Morning Briefing', 'prompt': 'Give me my morning briefing digest'},
+      {'icon': '🎙️', 'title': 'Hands-Free Siri Mode', 'prompt': 'Start live voice mode with Aria'},
+      {'icon': '🏋️', 'title': 'Fitness & Meal Plan', 'prompt': 'Create a workout and meal plan for weight loss'},
+      {'icon': '📰', 'title': 'Tech & AI News', 'prompt': 'Fetch tech news headlines'},
+      {'icon': '📄', 'title': 'PDF Analysis Q&A', 'prompt': 'Analyze pdf and summarize key findings'},
+      {'icon': '🚀', 'title': 'Full Project Generator', 'prompt': 'Generate project React TODO dashboard app'},
+      {'icon': '🗄️', 'title': 'SQL Query Architect', 'prompt': 'Write an optimized SQL query for user analytics'},
+      {'icon': '📄', 'title': 'Resume & Cover Letter', 'prompt': 'Build a cover letter for Senior Engineer'},
     ];
 
     return SingleChildScrollView(
@@ -144,57 +150,67 @@ class ChatView extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
+          // Glowing Orb Logo
           Container(
-            width: 80,
-            height: 80,
+            width: 90,
+            height: 90,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              gradient: AppTheme.primaryGradient,
+              gradient: AppTheme.cyberGradient,
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.primaryNeon.withValues(alpha: 0.5),
-                  blurRadius: 24,
-                  spreadRadius: 4,
+                  color: AppTheme.secondaryNeon.withValues(alpha: 0.6),
+                  blurRadius: 32,
+                  spreadRadius: 6,
                 ),
               ],
             ),
-            child: const Icon(Icons.smart_toy_rounded, size: 48, color: Colors.black),
+            child: const Icon(Icons.smart_toy_rounded, size: 52, color: Colors.white),
           ),
-          const SizedBox(height: 16),
-          const Text(
-            'Welcome to ISAI AI',
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+          const SizedBox(height: 20),
+          ShaderMask(
+            shaderCallback: (bounds) => AppTheme.primaryGradient.createShader(bounds),
+            child: const Text(
+              'ISAI PERSONAL AI',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 2,
+                color: Colors.white,
+              ),
             ),
           ),
           const SizedBox(height: 6),
           const Text(
-            'Your 30-Engine Uncensored Multimodal AI Assistant',
-            style: TextStyle(fontSize: 13, color: AppTheme.slate),
+            '35-Engine Uncensored Multimodal Assistant',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 13, color: AppTheme.slate, letterSpacing: 0.5),
           ),
           const SizedBox(height: 32),
+
+          // Quick Capabilities Title
           const Align(
             alignment: Alignment.centerLeft,
             child: Text(
-              'QUICK SUGGESTIONS (30 ENGINES)',
+              'EXPLORE CAPABILITY ENGINES',
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.bold,
-                letterSpacing: 1.2,
+                letterSpacing: 1.5,
                 color: AppTheme.primaryNeon,
               ),
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
+
+          // Grid of Action Chips
           GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
-              childAspectRatio: 2.2,
+              childAspectRatio: 2.1,
               crossAxisSpacing: 12,
               mainAxisSpacing: 12,
             ),
@@ -211,25 +227,40 @@ class ChatView extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: AppTheme.cardBackground,
+                    color: AppTheme.cardBackground.withValues(alpha: 0.8),
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppTheme.cardBorder),
+                    border: Border.all(color: AppTheme.cardBorder, width: 1.2),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.2),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(
-                        item['title']!,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                      Row(
+                        children: [
+                          Text(item['icon']!, style: const TextStyle(fontSize: 16)),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              item['title']!,
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 6),
                       Text(
                         item['prompt']!,
                         style: const TextStyle(fontSize: 10, color: AppTheme.slate),
@@ -248,12 +279,15 @@ class ChatView extends StatelessWidget {
   }
 
   Widget _buildMessageBubble(BuildContext context, dynamic msg, bool isUser) {
+    final String textContent = (msg.content as String? ?? '').trim();
+    final String displayText = textContent.isEmpty && msg.isStreaming ? '...' : textContent;
+
     return Align(
       alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 6.0),
+        margin: const EdgeInsets.symmetric(vertical: 8.0),
         constraints: BoxConstraints(
-          maxWidth: MediaQuery.of(context).size.width * 0.85,
+          maxWidth: MediaQuery.of(context).size.width * 0.86,
         ),
         decoration: BoxDecoration(
           gradient: isUser ? AppTheme.purpleGradient : null,
@@ -264,16 +298,16 @@ class ChatView extends StatelessWidget {
             bottomLeft: Radius.circular(isUser ? 20 : 4),
             bottomRight: Radius.circular(isUser ? 4 : 20),
           ),
-          border: isUser ? null : Border.all(color: AppTheme.cardBorder),
+          border: isUser ? null : Border.all(color: AppTheme.cardBorder, width: 1.2),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.25),
-              blurRadius: 10,
+              color: (isUser ? AppTheme.secondaryNeon : Colors.black).withValues(alpha: 0.3),
+              blurRadius: 12,
               offset: const Offset(0, 4),
             ),
           ],
         ),
-        padding: const EdgeInsets.all(14.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -282,30 +316,31 @@ class ChatView extends StatelessWidget {
               children: [
                 Icon(
                   isUser ? Icons.person_rounded : Icons.smart_toy_rounded,
-                  size: 14,
-                  color: isUser ? Colors.white70 : AppTheme.primaryNeon,
+                  size: 15,
+                  color: isUser ? Colors.white : AppTheme.primaryNeon,
                 ),
                 const SizedBox(width: 6),
                 Text(
                   isUser ? 'You' : 'ISAI Assistant',
                   style: TextStyle(
-                    fontSize: 11,
+                    fontSize: 12,
                     fontWeight: FontWeight.bold,
-                    color: isUser ? Colors.white70 : AppTheme.primaryNeon,
+                    color: isUser ? Colors.white : AppTheme.primaryNeon,
+                    letterSpacing: 0.5,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 10),
             MarkdownBody(
-              data: msg.content.isEmpty && msg.isStreaming ? '...' : msg.content,
+              data: displayText,
               styleSheet: MarkdownStyleSheet(
-                p: const TextStyle(color: Colors.white, fontSize: 14, height: 1.4),
+                p: const TextStyle(color: Colors.white, fontSize: 14.5, height: 1.45),
                 code: const TextStyle(
                   backgroundColor: Color(0xFF0F172A),
                   fontFamily: 'monospace',
                   color: Color(0xFF4ADE80),
-                  fontSize: 12,
+                  fontSize: 12.5,
                 ),
                 codeblockPadding: const EdgeInsets.all(12),
                 codeblockDecoration: BoxDecoration(
@@ -315,20 +350,20 @@ class ChatView extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 10),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               mainAxisSize: MainAxisSize.min,
               children: [
                 InkWell(
                   onTap: () {
-                    Clipboard.setData(ClipboardData(text: msg.content));
+                    Clipboard.setData(ClipboardData(text: textContent));
                     Get.snackbar(
-                      'Copied',
-                      'Text copied to clipboard',
+                      'Copied to Clipboard',
+                      'Text copied successfully',
                       snackPosition: SnackPosition.BOTTOM,
                       backgroundColor: AppTheme.cardBackground,
-                      colorText: Colors.white,
+                      colorText: AppTheme.primaryNeon,
                       duration: const Duration(seconds: 2),
                     );
                   },
@@ -337,7 +372,8 @@ class ChatView extends StatelessWidget {
                     child: Icon(Icons.copy_rounded, size: 14, color: AppTheme.slate),
                   ),
                 ),
-                if (isUser)
+                if (isUser) ...[
+                  const SizedBox(width: 8),
                   InkWell(
                     onTap: () => _chatController.retryMessage(msg),
                     child: const Padding(
@@ -345,6 +381,7 @@ class ChatView extends StatelessWidget {
                       child: Icon(Icons.refresh_rounded, size: 14, color: AppTheme.slate),
                     ),
                   ),
+                ]
               ],
             )
           ],
@@ -355,35 +392,51 @@ class ChatView extends StatelessWidget {
 
   Widget _buildInputDock(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10.0),
-      decoration: const BoxDecoration(
-        color: Color(0xFF0F172A),
-        border: Border(top: BorderSide(color: AppTheme.cardBorder)),
+      padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 12.0),
+      decoration: BoxDecoration(
+        color: const Color(0xFF0D1322),
+        border: const Border(top: BorderSide(color: AppTheme.cardBorder, width: 1.2)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.4),
+            blurRadius: 16,
+            offset: const Offset(0, -4),
+          ),
+        ],
       ),
       child: SafeArea(
         child: Row(
           children: [
             IconButton(
-              icon: const Icon(Icons.mic_none_rounded, color: AppTheme.primaryNeon),
-              tooltip: 'Voice Input',
+              icon: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppTheme.primaryNeon.withValues(alpha: 0.15),
+                  border: Border.all(color: AppTheme.primaryNeon.withValues(alpha: 0.4)),
+                ),
+                child: const Icon(Icons.mic_rounded, color: AppTheme.primaryNeon, size: 20),
+              ),
+              tooltip: 'Voice Mode',
               onPressed: () => Get.toNamed('/voice'),
             ),
+            const SizedBox(width: 6),
             Expanded(
               child: Container(
                 decoration: BoxDecoration(
                   color: AppTheme.inputBackground,
                   borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: AppTheme.cardBorder),
+                  border: Border.all(color: AppTheme.cardBorder, width: 1.2),
                 ),
                 child: TextField(
                   controller: _messageController,
-                  style: const TextStyle(color: Colors.white, fontSize: 14),
+                  style: const TextStyle(color: Colors.white, fontSize: 14.5),
                   decoration: const InputDecoration(
                     hintText: 'Ask ISAI anything...',
                     border: InputBorder.none,
                     enabledBorder: InputBorder.none,
                     focusedBorder: InputBorder.none,
-                    contentPadding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                    contentPadding: EdgeInsets.symmetric(horizontal: 18.0, vertical: 12.0),
                   ),
                   onSubmitted: (val) {
                     if (val.trim().isNotEmpty) {
@@ -396,9 +449,16 @@ class ChatView extends StatelessWidget {
             ),
             const SizedBox(width: 8),
             Obx(() => Container(
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     gradient: AppTheme.primaryGradient,
                     shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppTheme.primaryNeon.withValues(alpha: 0.4),
+                        blurRadius: 12,
+                        spreadRadius: 1,
+                      ),
+                    ],
                   ),
                   child: IconButton(
                     icon: const Icon(Icons.send_rounded, color: Colors.black, size: 20),
@@ -421,40 +481,42 @@ class ChatView extends StatelessWidget {
 
   Widget _buildFuturisticDrawer(BuildContext context) {
     return Drawer(
-      backgroundColor: const Color(0xFF0F172A),
+      backgroundColor: const Color(0xFF0D1322),
       child: Column(
         children: [
           UserAccountsDrawerHeader(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
-                colors: [Color(0xFF1E1B4B), Color(0xFF0F172A)],
+                colors: [Color(0xFF1E1B4B), Color(0xFF0D1322)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
             ),
             accountName: Obx(() => Text(
                   _authController.userDisplayName.value,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17, color: Colors.white),
                 )),
             accountEmail: Obx(() => Text(
                   _authController.userEmail.value,
-                  style: const TextStyle(color: AppTheme.slate, fontSize: 12),
+                  style: const TextStyle(color: AppTheme.slate, fontSize: 13),
                 )),
             currentAccountPicture: Container(
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                gradient: AppTheme.primaryGradient,
+                gradient: AppTheme.cyberGradient,
                 boxShadow: [
                   BoxShadow(
-                    color: AppTheme.primaryNeon.withValues(alpha: 0.4),
-                    blurRadius: 12,
+                    color: AppTheme.secondaryNeon.withValues(alpha: 0.5),
+                    blurRadius: 16,
                   )
                 ],
               ),
-              child: const Icon(Icons.smart_toy_rounded, size: 36, color: Colors.black),
+              child: const Icon(Icons.smart_toy_rounded, size: 38, color: Colors.white),
             ),
           ),
           ListTile(
             leading: const Icon(Icons.mic_rounded, color: AppTheme.primaryNeon),
-            title: const Text('Voice Mode (10 Voices)', style: TextStyle(color: Colors.white)),
+            title: const Text('Voice Mode (10 Voices)', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
             onTap: () {
               Get.back();
               Get.toNamed('/voice');
@@ -462,7 +524,7 @@ class ChatView extends StatelessWidget {
           ),
           ListTile(
             leading: const Icon(Icons.psychology_outlined, color: AppTheme.secondaryNeon),
-            title: const Text('Memory Bank & Triples', style: TextStyle(color: Colors.white)),
+            title: const Text('Memory Bank & Triples', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
             onTap: () {
               Get.back();
               Get.toNamed('/memory');
@@ -470,7 +532,7 @@ class ChatView extends StatelessWidget {
           ),
           ListTile(
             leading: const Icon(Icons.task_alt_rounded, color: AppTheme.accentEmerald),
-            title: const Text('Tasks & Autonomous Agent', style: TextStyle(color: Colors.white)),
+            title: const Text('Tasks & Autonomous Agent', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
             onTap: () {
               Get.back();
               Get.toNamed('/tasks');
@@ -478,13 +540,13 @@ class ChatView extends StatelessWidget {
           ),
           ListTile(
             leading: const Icon(Icons.settings_outlined, color: AppTheme.slate),
-            title: const Text('Settings & 30-Engine Info', style: TextStyle(color: Colors.white)),
+            title: const Text('Settings & 35-Engine Info', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
             onTap: () {
               Get.back();
               Get.toNamed('/settings');
             },
           ),
-          const Divider(color: AppTheme.cardBorder),
+          const Divider(color: AppTheme.cardBorder, height: 1),
           ListTile(
             leading: const Icon(Icons.add_circle_outline, color: AppTheme.primaryNeon),
             title: const Text('New Conversation', style: TextStyle(color: AppTheme.primaryNeon, fontWeight: FontWeight.bold)),
@@ -493,7 +555,7 @@ class ChatView extends StatelessWidget {
               _chatController.createNewConversation();
             },
           ),
-          const Divider(color: AppTheme.cardBorder),
+          const Divider(color: AppTheme.cardBorder, height: 1),
           Expanded(
             child: Obx(() {
               if (_chatController.isLoadingConversations.value) {
@@ -531,7 +593,7 @@ class ChatView extends StatelessWidget {
           ),
           ListTile(
             leading: const Icon(Icons.logout_rounded, color: Colors.redAccent),
-            title: const Text('Sign Out', style: TextStyle(color: Colors.redAccent)),
+            title: const Text('Sign Out', style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold)),
             onTap: () => _authController.logout(),
           ),
         ],
