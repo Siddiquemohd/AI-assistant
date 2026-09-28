@@ -35,23 +35,58 @@ class _VoiceRegistrationViewState extends State<VoiceRegistrationView> {
   }
 
   Future<void> _startListening() async {
-    setState(() {
-      _isListening = true;
-      _recognizedPhrase = '';
-    });
+    try {
+      setState(() {
+        _isListening = true;
+        _recognizedPhrase = '';
+      });
 
-    await _sttService.startListening(
-      onResult: (text) {
+      final isAvailable = await _sttService.initialize();
+      if (!isAvailable) {
         setState(() {
-          _recognizedPhrase = text;
+          _isListening = false;
         });
-      },
-      onSoundLevelChanged: () {},
-    );
+        Get.snackbar(
+          'Microphone Permission Required',
+          'Please grant microphone permission in Android Settings to record your voice.',
+          backgroundColor: AppTheme.cardBackground,
+          colorText: Colors.redAccent,
+          snackPosition: SnackPosition.BOTTOM,
+        );
+        return;
+      }
+
+      await _sttService.startListening(
+        onResult: (text) {
+          if (mounted) {
+            setState(() {
+              _recognizedPhrase = text;
+            });
+          }
+        },
+        onSoundLevelChanged: () {},
+      );
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isListening = false;
+        });
+        Get.snackbar(
+          'Voice Recognition Error',
+          'Could not start voice listener: $e',
+          backgroundColor: AppTheme.cardBackground,
+          colorText: Colors.redAccent,
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      }
+    }
   }
 
   Future<void> _stopAndConfirm() async {
-    await _sttService.stopListening();
+    try {
+      await _sttService.stopListening();
+    } catch (_) {}
+
     setState(() {
       _isListening = false;
     });
@@ -73,21 +108,39 @@ class _VoiceRegistrationViewState extends State<VoiceRegistrationView> {
   }
 
   Future<void> _finishEnrollment() async {
-    setState(() {
-      _isSaving = true;
-    });
+    try {
+      setState(() {
+        _isSaving = true;
+      });
 
-    await _biometricsService.saveEnrolledProfile(_recordedSamples);
+      await _biometricsService.saveEnrolledProfile(_recordedSamples);
 
-    if (mounted) {
-      Get.snackbar(
-        'Voice Biometrics Registered',
-        'Your voice profile has been saved successfully! ISAI is now locked to your voice.',
-        backgroundColor: AppTheme.cardBackground,
-        colorText: AppTheme.primaryNeon,
-        snackPosition: SnackPosition.BOTTOM,
-      );
-      Get.back();
+      if (mounted) {
+        setState(() {
+          _isSaving = false;
+        });
+        Get.snackbar(
+          'Voice Profile Registered',
+          'Your voice profile has been saved successfully! ISAI is now locked to your voice signature.',
+          backgroundColor: AppTheme.cardBackground,
+          colorText: AppTheme.primaryNeon,
+          snackPosition: SnackPosition.BOTTOM,
+        );
+        Get.back();
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isSaving = false;
+        });
+        Get.snackbar(
+          'Save Error',
+          'Failed to save voice profile: $e',
+          backgroundColor: AppTheme.cardBackground,
+          colorText: Colors.redAccent,
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      }
     }
   }
 

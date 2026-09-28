@@ -225,6 +225,10 @@ class ChatController extends GetxController {
               assistantMsg.content += chunk;
               messages.refresh();
             } else if (eventType == 'message.completed') {
+              final fullContent = json['fullContent'] as String? ?? '';
+              if (fullContent.isNotEmpty) {
+                assistantMsg.content = fullContent;
+              }
               assistantMsg.isStreaming = false;
               assistantMsg.status = 'Completed';
               messages.refresh();
@@ -238,8 +242,25 @@ class ChatController extends GetxController {
           }
         }
       }
+
+      // If streaming finished but content is still empty, fetch non-streaming response
+      if (assistantMsg.content.trim().isEmpty) {
+        final fallbackResponse = await _apiClient.dio.post(
+          '/conversations/$convId/messages',
+          data: {'content': text.trim()},
+        );
+        if (fallbackResponse.statusCode == 200 && fallbackResponse.data != null) {
+          final replyMsg = ChatMessageModel.fromJson(fallbackResponse.data as Map<String, dynamic>);
+          assistantMsg.content = replyMsg.content;
+          assistantMsg.status = 'Completed';
+          assistantMsg.isStreaming = false;
+          messages.refresh();
+          _executeNativeDeviceTools(assistantMsg.content);
+          fetchConversations();
+        }
+      }
     } catch (e) {
-      if (!receivedAnyData) {
+      if (!receivedAnyData || assistantMsg.content.trim().isEmpty) {
         // Fallback to non-streaming POST /conversations/$convId/messages
         try {
           final fallbackResponse = await _apiClient.dio.post(
