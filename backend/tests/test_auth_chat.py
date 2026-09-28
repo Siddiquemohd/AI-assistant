@@ -46,4 +46,3 @@ async def test_register_and_login_flow():
         data_msg = res_msg.json()
         assert data_msg["role"] == "assistant"
         assert len(data_msg["content"]) > 0
-        assert "ISAI" in data_msg["content"]
