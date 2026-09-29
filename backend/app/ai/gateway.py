@@ -1,14 +1,14 @@
 from typing import AsyncGenerator, List
 from app.ai.base import BaseAiProvider, PromptMessage
-from app.ai.custom_pytorch_provider import CustomPyTorchProvider
+from app.ai.huggingface_provider import HuggingFaceProvider
 
 class AiGateway:
     """
     Primary AI Gateway for ISAI.
-    Operates 100% autonomously using ISAI's built-in self-contained PyTorch AI engine.
+    Operates 100% autonomously using custom fine-tuned Llama-3.2-3B model on Hugging Face.
     """
     def __init__(self):
-        self._native_ai_engine = CustomPyTorchProvider()
+        self._native_ai_engine = HuggingFaceProvider(repo_id="Siddiquiee/ISAI-Custom-Llama3.2-3B")
 
     def get_provider(self, mode: str = "auto") -> BaseAiProvider:
         return self._native_ai_engine
