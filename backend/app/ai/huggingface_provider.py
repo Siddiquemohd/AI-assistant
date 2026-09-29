@@ -1,4 +1,5 @@
 import os
+import urllib.parse
 import asyncio
 import httpx
 from typing import AsyncGenerator, List
@@ -6,8 +7,8 @@ from app.ai.base import BaseAiProvider, PromptMessage
 
 class HuggingFaceProvider(BaseAiProvider):
     """
-    AI Provider routing requests to custom fine-tuned Llama-3.2-3B model
-    hosted live on Hugging Face Hub (Siddiquiee/ISAI-Custom-Llama3.2-3B).
+    AI Provider routing text requests to custom fine-tuned Llama-3.2-3B model
+    (Siddiquiee/ISAI-Custom-Llama3.2-3B) and image generation requests to FLUX.1 Uncensored Diffusion.
     """
     def __init__(self, repo_id: str = "Siddiquiee/ISAI-Custom-Llama3.2-3B", hf_token: str = None):
         self.repo_id = repo_id
@@ -19,8 +20,20 @@ class HuggingFaceProvider(BaseAiProvider):
         return f"HuggingFace-{self.repo_id}"
 
     async def generate_response(self, history: List[PromptMessage]) -> str:
-        user_msg = next((m.content for m in reversed(history) if m.role == "user"), "Hello")
+        user_msg = next((m.content for m in reversed(history) if m.role == "user"), "Hello").strip()
+        user_msg_lower = user_msg.lower()
         
+        # Image Generation Intent Detection (Uncensored FLUX.1 Engine)
+        image_keywords = ["create image", "generate image", "create a picture", "draw", "generate a picture", "create a 18 year old girl image", "image of", "picture of"]
+        if any(kw in user_msg_lower for kw in image_keywords) or (("create" in user_msg_lower or "generate" in user_msg_lower or "draw" in user_msg_lower) and "image" in user_msg_lower):
+            encoded_prompt = urllib.parse.quote(user_msg)
+            image_url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?width=1024&height=1024&model=flux&nologo=true"
+            return (
+                f"🎨 **Uncensored Image Generation Output**:\n\n"
+                f"![{user_msg}]({image_url})\n\n"
+                f"Here is your generated image for: *\"{user_msg}\"*"
+            )
+
         headers = {
             "Content-Type": "application/json"
         }
