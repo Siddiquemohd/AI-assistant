@@ -18,5 +18,5 @@ class AppConfig {
     }
   }
 
-  static const Duration timeout = Duration(seconds: 30);
+  static const Duration timeout = Duration(seconds: 90);
 }

@@ -64,8 +64,15 @@ class AuthController extends GetxController {
       Get.offAllNamed('/chat');
       return true;
     } on DioException catch (e) {
-      final detail = e.response?.data['detail'] ?? e.response?.data['message'];
-      errorMessage.value = detail != null ? detail.toString() : 'Login failed. Please check credentials.';
+      if (e.type == DioExceptionType.connectionTimeout || 
+          e.type == DioExceptionType.receiveTimeout || 
+          e.type == DioExceptionType.sendTimeout || 
+          e.type == DioExceptionType.connectionError) {
+        errorMessage.value = 'Server is starting up. Please wait a few seconds and try again.';
+      } else {
+        final detail = e.response?.data['detail'] ?? e.response?.data['message'];
+        errorMessage.value = detail != null ? detail.toString() : 'Login failed. Please check credentials.';
+      }
       return false;
     } catch (e) {
       errorMessage.value = 'An unexpected error occurred: $e';
@@ -114,8 +121,15 @@ class AuthController extends GetxController {
       Get.offAllNamed('/chat');
       return true;
     } on DioException catch (e) {
-      final detail = e.response?.data['detail'] ?? e.response?.data['message'];
-      errorMessage.value = detail != null ? detail.toString() : 'Registration failed.';
+      if (e.type == DioExceptionType.connectionTimeout || 
+          e.type == DioExceptionType.receiveTimeout || 
+          e.type == DioExceptionType.sendTimeout || 
+          e.type == DioExceptionType.connectionError) {
+        errorMessage.value = 'Server is starting up. Please wait a few seconds and try again.';
+      } else {
+        final detail = e.response?.data['detail'] ?? e.response?.data['message'];
+        errorMessage.value = detail != null ? detail.toString() : 'Registration failed.';
+      }
       return false;
     } catch (e) {
       errorMessage.value = 'An unexpected error occurred: $e';
