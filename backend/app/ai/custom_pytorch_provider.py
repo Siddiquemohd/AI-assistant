@@ -1,11 +1,14 @@
 import os
 import asyncio
-import torch
 from typing import AsyncGenerator, List
+
+try:
+    import torch
+except ImportError:
+    torch = None
+
 from app.ai.base import BaseAiProvider, PromptMessage
-from app.ai.custom_model.model import CustomLLMFromScratch
 from app.ai.custom_model.tokenizer import CustomTokenizer
-from app.ai.custom_model.generate import generate_text
 from app.ai.custom_model.multimodal_assistant import MultimodalPersonalAI
 
 class CustomPyTorchProvider(BaseAiProvider):
@@ -14,7 +17,7 @@ class CustomPyTorchProvider(BaseAiProvider):
     and MultimodalPersonalAI engine.
     """
     def __init__(self):
-        self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.device = "cuda" if (torch is not None and torch.cuda.is_available()) else "cpu"
         self.tokenizer = CustomTokenizer()
         
         # Determine path to checkpoint directory
@@ -31,8 +34,9 @@ class CustomPyTorchProvider(BaseAiProvider):
                 print(f"Error loading tokenizer: {e}")
 
         self.model = None
-        if os.path.exists(model_path):
+        if torch is not None and os.path.exists(model_path):
             try:
+                from app.ai.custom_model.model import CustomLLMFromScratch
                 state_dict = torch.load(model_path, map_location=self.device)
                 vocab_size = state_dict["token_emb.weight"].shape[0] if "token_emb.weight" in state_dict else getattr(self.tokenizer, "vocab_size", 40)
                 self.model = CustomLLMFromScratch(
@@ -65,6 +69,7 @@ class CustomPyTorchProvider(BaseAiProvider):
         # Execute custom PyTorch model generation if available
         if self.model is not None and len(last_prompt) > 0:
             try:
+                from app.ai.custom_model.generate import generate_text
                 generated_text = generate_text(
                     self.model,
                     self.tokenizer,
