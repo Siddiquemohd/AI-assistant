@@ -30,7 +30,7 @@ class AuthController extends GetxController {
     }
   }
 
-  Future<bool> login(String email, String password) async {
+  Future<bool> login(String email, String password, {int retryCount = 0}) async {
     isLoading.value = true;
     errorMessage.value = '';
     final cleanEmail = email.trim().toLowerCase();
@@ -68,7 +68,12 @@ class AuthController extends GetxController {
           e.type == DioExceptionType.receiveTimeout || 
           e.type == DioExceptionType.sendTimeout || 
           e.type == DioExceptionType.connectionError) {
-        errorMessage.value = 'Server is starting up. Please wait a few seconds and try again.';
+        if (retryCount < 2) {
+          errorMessage.value = 'Server is waking up (Render cold-start)... Auto-retrying (${retryCount + 1}/2)...';
+          await Future.delayed(const Duration(seconds: 3));
+          return login(email, password, retryCount: retryCount + 1);
+        }
+        errorMessage.value = 'Server has now woken up! Please tap "SIGN IN" again.';
       } else {
         final detail = e.response?.data['detail'] ?? e.response?.data['message'];
         errorMessage.value = detail != null ? detail.toString() : 'Login failed. Please check credentials.';
@@ -78,7 +83,9 @@ class AuthController extends GetxController {
       errorMessage.value = 'An unexpected error occurred: $e';
       return false;
     } finally {
-      isLoading.value = false;
+      if (retryCount == 0 || errorMessage.value != 'Server is waking up (Render cold-start)... Auto-retrying (${retryCount + 1}/2)...') {
+        isLoading.value = false;
+      }
     }
   }
 
